@@ -1,15 +1,19 @@
-import Link from 'next/link'
-import Layout from '../components/Layout'
+import PostCard from "@components/PostCard";
+import Tabs from "@pages/home/Tabs";
+import React from "react";
+import styled from "styled-components";
 
-const IndexPage = () => (
-  <Layout title="Home | Next.js + TypeScript Example">
-    <h1>Hello Next.js 👋</h1>
-    <p>
-      <Link href="/about">
-        <a>About</a>
-      </Link>
-    </p>
-  </Layout>
-)
+const Wrapper = styled.main`
+  padding: 0 16px;
+`;
 
-export default IndexPage
+export default function Home() {
+  return (
+    <>
+      <Tabs />
+      <Wrapper>
+        <PostCard />
+      </Wrapper>
+    </>
+  );
+}
