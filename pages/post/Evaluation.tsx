@@ -1,6 +1,6 @@
-import CustomImage from "@components/CustomImage";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
+import sizeStyle from "@styles/sizeStyle";
 import React from "react";
 import styled from "styled-components";
 // import GoodIconActive from '@assets/icons/lnr-thumbs-up@3x.png';
@@ -25,24 +25,22 @@ const Count = styled.span`
   ${fontStyle("16px", "22px")};
 `;
 
+const CustomImage = styled.img`
+  ${sizeStyle("21px", "21px")};
+  object-fit: contain;
+`;
+
 export default function Evaluation() {
   return (
     <Wrapper>
       <Scope>
-        <CustomImage
-          url="/static/assets/icons/icon_thumbsup_gray@3x.png"
-          width={21}
-          height={21}
-          alt=""
-        />
+        <CustomImage src="/static/icon_thumbsup_gray@3x.png" alt="thumbs up" />
         <Count>12</Count>
       </Scope>
       <Scope>
         <CustomImage
-          url="/static/assets/icons/icon_thumbsdown_gray@3x.png"
-          width={21}
-          height={21}
-          alt=""
+          src="/static/icon_thumbsdown_gray@3x.png"
+          alt="thumbs down"
         />
         <Count>12</Count>
       </Scope>

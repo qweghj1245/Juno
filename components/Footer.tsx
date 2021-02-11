@@ -1,9 +1,9 @@
 import { Row } from "@styles/flexStyle";
+import sizeStyle from "@styles/sizeStyle";
 import Link from "next/link";
 import { NextRouter, useRouter } from "next/router";
 import React from "react";
 import styled from "styled-components";
-import CustomImage from "./CustomImage";
 
 const Wrapper = styled(Row)`
   position: fixed;
@@ -15,6 +15,11 @@ const Wrapper = styled(Row)`
   padding: 14px 36px;
   background: ${({ theme: { color } }) => color.white};
   border-top: solid 1px ${({ theme: { color } }) => color.grey100};
+`;
+
+const CustomImage = styled.img`
+  ${sizeStyle("22px", "22px")};
+  object-fit: contain;
 `;
 
 const homeMatch = (location: NextRouter) => location.pathname === "/";
@@ -30,56 +35,48 @@ export default function Footer() {
       <Link href="/">
         <div>
           <CustomImage
-            url={
+            src={
               homeMatch(router)
-                ? "/static/assets/icons/lnr-home@3x.png"
-                : "/static/assets/icons/icon_home_gray@3x.png"
+                ? `/static/lnr-home@3x.png`
+                : `/static/icon_home_gray@3x.png`
             }
-            width={22}
-            height={22}
-            alt=""
+            alt="home"
           />
         </div>
       </Link>
       <Link href="/">
         <div>
           <CustomImage
-            url={
+            src={
               tagMatch(router)
-                ? "/static/assets/icons/lnr-tag@3x.png"
-                : "/static/assets/icons/icon_tag_gray@3x.png"
+                ? "/static/lnr-tag@3x.png"
+                : "/static/icon_tag_gray@3x.png"
             }
-            width={22}
-            height={22}
-            alt=""
+            alt="tag"
           />
         </div>
       </Link>
       <Link href="/">
         <div>
           <CustomImage
-            url={
+            src={
               noticeMatch(router)
-                ? "/static/assets/icons/lnr-alarm@3x.png"
-                : "/static/assets/icons/icon_alarm_gray@3x.png"
+                ? "/static/lnr-alarm@3x.png"
+                : "/static/icon_alarm_gray@3x.png"
             }
-            width={22}
-            height={22}
-            alt=""
+            alt="notice"
           />
         </div>
       </Link>
       <Link href="/member">
         <div>
           <CustomImage
-            url={
+            src={
               memberMatch(router)
-                ? "/static/assets/icons/lnr-user@3x.png"
-                : "/static/assets/icons/icon_user_gray@3x.png"
+                ? "/static/lnr-user@3x.png"
+                : "/static/icon_user_gray@3x.png"
             }
-            width={22}
-            height={22}
-            alt=""
+            alt="user"
           />
         </div>
       </Link>

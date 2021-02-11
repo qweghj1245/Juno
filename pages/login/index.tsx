@@ -1,4 +1,3 @@
-import CustomImage from "@components/CustomImage";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
@@ -41,8 +40,11 @@ const LoginButton = styled(Row)<{ type: LoginType }>`
   }};
 `;
 
-const Icon = styled.img`
+const CustomImage = styled.img`
+  width: 20px;
+  height: 20px;
   ${sizeStyle("20px", "20px")};
+  object-fit: contain;
 `;
 
 const Text = styled.span`
@@ -56,19 +58,15 @@ export default function Login() {
     <Wrapper>
       <LoginButton type={LoginType.GOOGLE}>
         <CustomImage
-          url="/static/assets/icons/logo_google_white@3x.png"
-          width={20}
-          height={20}
-          alt=""
+          src="/static/logo_google_white@3x.png"
+          alt="google sign in"
         />
         <Text>Google 登入</Text>
       </LoginButton>
       <LoginButton type={LoginType.FACEBOOK}>
         <CustomImage
-          url="/static/assets/icons/logo_facebook_white@3x.png"
-          width={20}
-          height={20}
-          alt=""
+          src="/static/logo_facebook_white@3x.png"
+          alt="facebook sign in"
         />
         <Text>Facebook 登入</Text>
       </LoginButton>

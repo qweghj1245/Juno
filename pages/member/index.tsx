@@ -1,4 +1,3 @@
-import CustomImage from "@components/CustomImage";
 import PostCard from "@components/PostCard";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
@@ -63,6 +62,11 @@ const Selector = styled.div`
   background: ${({ theme: { color } }) => color.grey100};
 `;
 
+const CustomImage = styled.img`
+  ${sizeStyle("22px", "22px")};
+  object-fit: contain;
+`;
+
 const SelectStyle = {
   control: () => ({
     background: "transparent",
@@ -87,12 +91,7 @@ export default function Member() {
           <Avator />
           <Name>我是小笨寶寶</Name>
           <SettingScope>
-            <CustomImage
-              url="/static/assets/icons/icon_cog_gray@3x.png"
-              width={22}
-              height={22}
-              alt=""
-            />
+            <CustomImage src="/static/icon_cog_gray@3x.png" alt="" />
           </SettingScope>
         </Row>
         <MemberIntro>
