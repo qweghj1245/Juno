@@ -1,8 +1,9 @@
 import styled from "styled-components";
 
-export const Row = styled.div`
+export const Row = styled.div<{ justifyContent?: string; alignItems?: string }>`
   display: flex;
-  align-items: center;
+  justify-content: ${({ justifyContent }) => justifyContent};
+  align-items: ${({ justifyContent }) => justifyContent || "center"};
 `;
 
 export default {};

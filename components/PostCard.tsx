@@ -2,56 +2,52 @@
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
+import textOverflow from "@styles/textOverflow";
 import { Post, PostTagsMap } from "api/PostApi";
+import moment from "moment";
 import Link from "next/link";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 import getKeys from "utils/getKeys";
 
-const Wrapper = styled.div`
-  display: block;
+const Wrapper = styled.article`
   padding: 16px 0;
   background: #ffffff;
-  position: relative;
   border-bottom: solid 1px ${({ theme: { color } }) => color.grey100};
 `;
 
+const ContentWrapper = styled.div`
+  width: calc(100% - 72px);
+`;
+
 const Tag = styled.p`
-  padding: 4px 8px;
-  margin-right: 4px;
   margin-bottom: 4px;
-  border-radius: 14px;
-  border: solid 1px ${({ theme: { color } }) => color.grey100};
   ${fontStyle("14px", "20px")};
 `;
 
 const PostTitle = styled.h2`
+  width: 97%;
   margin-bottom: 4px;
+  ${textOverflow};
   ${fontStyle("18px", "25px", "bold")};
 `;
 
 const Description = styled.p`
-  margin-bottom: 4px;
+  width: 97%;
+  margin-bottom: 8px;
+  ${textOverflow};
   ${fontStyle("14px", "20px")};
   color: ${({ theme: { color } }) => color.grey500};
 `;
 
 const PostImage = styled.img`
-  position: absolute;
-  right: 0px;
-  bottom: 16px;
   border-radius: 10px;
   ${sizeStyle("72px", "72px")};
 `;
 
-const Icon = styled.img`
-  margin-right: 4px;
-  ${sizeStyle("20px", "20px")};
-`;
-
-const IconCounter = styled.p`
-  margin-right: 8px;
-  ${fontStyle("14px", "20px")};
+const CreateTime = styled.p`
+  ${fontStyle("12px", "17px")};
+  color: ${({ theme: { color } }) => color.grey500};
 `;
 
 const testImage =
@@ -68,8 +64,10 @@ export default function PostCard(props: Props) {
   const getTags = useMemo(() => {
     const postId = getKeys(postTags).find((key) => post.id === key);
     if (postId) {
-      return postTags[postId].map((tag) => (
-        <Tag key={tag.tagId}>{tag.name}</Tag>
+      return postTags[postId].map((tag, idx, arr) => (
+        <Tag key={tag.tagId}>
+          {`${tag.name}${idx !== arr.length - 1 ? "・" : ""}`}
+        </Tag>
       ));
     }
     return [];
@@ -78,24 +76,17 @@ export default function PostCard(props: Props) {
   return (
     <Link href="/post/2">
       <Wrapper>
-        <Row>{getTags}</Row>
-        <PostTitle>{post.title}</PostTitle>
-        <Description>{post.content}</Description>
-        <Row>
-          <Row>
-            <Icon src={testImage} />
-            <IconCounter>12</IconCounter>
-          </Row>
-          <Row>
-            <Icon src={testImage} />
-            <IconCounter>2</IconCounter>
-          </Row>
-          <Row>
-            <Icon src={testImage} />
-            <IconCounter>2</IconCounter>
-          </Row>
+        <Row justifyContent="space-between" alignItems="flex-start">
+          <ContentWrapper>
+            <Row>{getTags}</Row>
+            <PostTitle>{post.title}</PostTitle>
+            <Description>{post.content}</Description>
+            <CreateTime>
+              {moment(post.createdAt).format("YYYY.MM.DD")}
+            </CreateTime>
+          </ContentWrapper>
+          <PostImage src={testImage} />
         </Row>
-        <PostImage src={testImage} />
       </Wrapper>
     </Link>
   );

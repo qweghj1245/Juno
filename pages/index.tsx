@@ -21,7 +21,7 @@ const Home: FC<Props> = (props) => {
       <Tabs />
       <Wrapper>
         {posts.map((post) => (
-          <PostCard post={post} postTags={postTags} />
+          <PostCard key={post.id} post={post} postTags={postTags} />
         ))}
       </Wrapper>
     </>
