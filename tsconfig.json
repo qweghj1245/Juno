@@ -22,7 +22,8 @@
       "@pages/*": ["pages/*"],
       "@components/*": ["components/*"],
       "@styles/*": ["styles/*"],
-      "@icons/*": ["assets/icons/*"]
+      "@icons/*": ["assets/icons/*"],
+      "@redux/*": ["redux/*"]
     }
   },
   "exclude": ["node_modules"],

@@ -1,31 +1,46 @@
 import PostCard from "@components/PostCard";
 import Tabs from "@pages/home/Tabs";
-import PostApi from "api/PostApi";
-import React from "react";
+import { fetchPosts, fetchPostTags } from "@redux/postSlice";
+import { wrapper } from "@redux/store";
+import { PostsResults, PostTagsMap } from "api/PostApi";
+import React, { FC } from "react";
 import styled from "styled-components";
 
 const Wrapper = styled.main`
   padding: 0 16px;
 `;
 
-const Home = (props: any) => {
-  console.log("props", props);
+type Props = PostsResults & {
+  postTags: PostTagsMap;
+};
 
+const Home: FC<Props> = (props) => {
+  const { posts, postTags } = props;
   return (
     <>
       <Tabs />
       <Wrapper>
-        <PostCard />
+        {posts.map((post) => (
+          <PostCard post={post} postTags={postTags} />
+        ))}
       </Wrapper>
     </>
   );
 };
 
-export const getStaticProps = async () => {
-  const res = await PostApi.fetchPosts();
-  return {
-    props: { res: res.data },
-  };
-};
+export const getServerSideProps = wrapper.getServerSideProps(async (ctx) => {
+  try {
+    await ctx.store.dispatch(fetchPosts());
+    const posts = ctx.store.getState().post.postsResult;
+    const postIds = posts.posts.map((post) => post.id);
+
+    await ctx.store.dispatch(fetchPostTags(postIds));
+    const postTags = ctx.store.getState().post.postTags;
+
+    return { props: { ...posts, postTags } };
+  } catch (error) {
+    return { props: {} };
+  }
+});
 
 export default Home;

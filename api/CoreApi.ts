@@ -18,11 +18,6 @@ export default class CoreApi {
         "Content-Type": "application/json",
       },
     });
-
-    this.axiosInstance.interceptors.request.use((axiosConfig) => {
-      console.log("config", axiosConfig);
-      return axiosConfig;
-    });
   }
 
   public get = (url: string, queryParams?: object) => {

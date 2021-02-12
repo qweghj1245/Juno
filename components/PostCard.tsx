@@ -2,9 +2,11 @@
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
+import { Post, PostTagsMap } from "api/PostApi";
 import Link from "next/link";
-import React from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
+import getKeys from "utils/getKeys";
 
 const Wrapper = styled.div`
   display: block;
@@ -55,17 +57,30 @@ const IconCounter = styled.p`
 const testImage =
   "https://www.humanesociety.org/sites/default/files/styles/1240x698/public/2020-07/cat-410261.jpg?h=191a1c11&itok=c4ksCwxz";
 
-export default function PostCard() {
+type Props = {
+  post: Post;
+  postTags: PostTagsMap;
+};
+
+export default function PostCard(props: Props) {
+  const { post, postTags } = props;
+
+  const getTags = useMemo(() => {
+    const postId = getKeys(postTags).find((key) => post.id === key);
+    if (postId) {
+      return postTags[postId].map((tag) => (
+        <Tag key={tag.tagId}>{tag.name}</Tag>
+      ));
+    }
+    return [];
+  }, [postTags]);
+
   return (
     <Link href="/post/2">
       <Wrapper>
-        <Row>
-          <Tag>省錢</Tag>
-          <Tag>麥當勞</Tag>
-          <Tag>分享</Tag>
-        </Row>
-        <PostTitle>實用麥當勞省錢技巧</PostTitle>
-        <Description>內文預覽補充字數補充字數</Description>
+        <Row>{getTags}</Row>
+        <PostTitle>{post.title}</PostTitle>
+        <Description>{post.content}</Description>
         <Row>
           <Row>
             <Icon src={testImage} />
