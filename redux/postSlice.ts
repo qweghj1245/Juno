@@ -1,5 +1,9 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import PostApi, { PostsResults, PostTagsMap } from "api/PostApi";
+import PostApi, {
+  FetchPostsQuery,
+  PostsResults,
+  PostTagsMap,
+} from "api/PostApi";
 
 interface IState {
   postsResult: PostsResults;
@@ -14,10 +18,13 @@ const initialState: IState = {
   postTags: {},
 };
 
-export const fetchPosts = createAsyncThunk("post/fetchPosts", async () => {
-  const response = await PostApi.fetchPosts();
-  return response;
-});
+export const fetchPosts = createAsyncThunk(
+  "post/fetchPosts",
+  async (payload?: FetchPostsQuery) => {
+    const response = await PostApi.fetchPosts(payload);
+    return response;
+  }
+);
 
 export const fetchPostTags = createAsyncThunk(
   "post/fetchPostTags",
