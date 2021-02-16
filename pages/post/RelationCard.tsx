@@ -2,7 +2,7 @@
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
-import { RelationPost } from "api/PostApi";
+import { PostTagsMap, RelationPost } from "api/PostApi";
 import moment from "moment";
 import Link from "next/link";
 import React from "react";
@@ -16,12 +16,7 @@ const Wrapper = styled.div`
 `;
 
 const Tag = styled.p`
-  padding: 4px 8px;
-  margin-right: 8px;
-  margin-bottom: 8px;
-  border-radius: 14px;
-  border: solid 1px ${({ theme: { color } }) => color.grey100};
-  ${fontStyle("12px", "17px")};
+  ${fontStyle("14px", "20px")};
 `;
 
 const PostTitle = styled.h2`
@@ -41,21 +36,22 @@ const CreateTime = styled.p`
 
 type Props = {
   post: RelationPost;
+  postTags: PostTagsMap;
 };
 
 const testImage =
   "https://www.humanesociety.org/sites/default/files/styles/1240x698/public/2020-07/cat-410261.jpg?h=191a1c11&itok=c4ksCwxz";
 
 export default function PostCard(props: Props) {
-  const { post } = props;
+  const { post, postTags } = props;
 
   return (
     <Link href={`/post/${post.id}`}>
       <Wrapper>
         <Row>
-          <Tag>省錢</Tag>
-          <Tag>麥當勞</Tag>
-          <Tag>分享</Tag>
+          {postTags[post.id].map((tag, idx, arr) => (
+            <Tag>{`${tag.name}${idx !== arr.length - 1 ? "・" : ""}`}</Tag>
+          ))}
         </Row>
         <Row justifyContent="space-between">
           <div>

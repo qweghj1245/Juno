@@ -1,5 +1,5 @@
 import fontStyle from "@styles/fontStyle";
-import { Comment, RelationPost } from "api/PostApi";
+import { Comment, PostTagsMap, RelationPost } from "api/PostApi";
 import React from "react";
 import styled from "styled-components";
 import CommentCard from "./CommentCard";
@@ -39,10 +39,13 @@ type Props = {
   sectionType: SectionType;
   comments?: Comment[];
   relationPosts?: RelationPost[];
+  postTags?: PostTagsMap;
 };
 
 export default function SectionContent(props: Props) {
-  const { sectionType, comments, relationPosts } = props;
+  const { sectionType, comments, relationPosts, postTags } = props;
+
+  console.log(postTags);
 
   switch (sectionType) {
     case SectionType.COMMENT:
@@ -58,12 +61,14 @@ export default function SectionContent(props: Props) {
         </>
       );
     case SectionType.RELATION:
+      if (relationPosts?.length === 0) return null;
+
       return (
         <Gap>
           <Title>相關文章</Title>
           <Wrapper>
             {relationPosts?.map((post) => (
-              <RelationCard post={post} />
+              <RelationCard post={post} postTags={postTags!} />
             ))}
           </Wrapper>
         </Gap>

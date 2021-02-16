@@ -45,6 +45,7 @@ const Post: FC<Props> = (props) => {
       <SectionContent
         sectionType={SectionType.RELATION}
         relationPosts={relationPosts}
+        postTags={postTags}
       />
     </Wrapper>
   );
@@ -55,15 +56,11 @@ export const getServerSideProps = wrapper.getServerSideProps(async (ctx) => {
   let postTags: PostTagsMap = {};
   let comments: Comment[] = [];
   let relationPosts: RelationPost[] = [];
+  let postIds: number[] = [];
 
   try {
     await ctx.store.dispatch(fetchPost(ctx.query.id));
     post = ctx.store.getState().post.post;
-  } catch (error) {}
-
-  try {
-    await ctx.store.dispatch(fetchPostTags([ctx.query.id]));
-    postTags = ctx.store.getState().post.postTags;
   } catch (error) {}
 
   try {
@@ -74,6 +71,12 @@ export const getServerSideProps = wrapper.getServerSideProps(async (ctx) => {
   try {
     await ctx.store.dispatch(fetchRelationPosts(ctx.query.id));
     relationPosts = ctx.store.getState().post.relationPosts;
+    postIds = relationPosts.map((post) => post.id);
+  } catch (error) {}
+
+  try {
+    await ctx.store.dispatch(fetchPostTags([...postIds, ctx.query.id]));
+    postTags = ctx.store.getState().post.postTags;
   } catch (error) {}
 
   return { props: { post, postTags, comments, relationPosts } };
