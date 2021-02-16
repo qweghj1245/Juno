@@ -1,5 +1,6 @@
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
+import moment from "moment";
 import React from "react";
 import styled from "styled-components";
 
@@ -24,13 +25,22 @@ const CreateTime = styled.h4`
   ${fontStyle("12px", "17px")};
 `;
 
-export default function Author() {
+type Props = {
+  author: string;
+  authorAvator: string;
+  createdAt: number;
+};
+
+export default function Author(props: Props) {
+  const { author, authorAvator, createdAt } = props;
   return (
     <Wrapper>
-      <AuthorPhoto />
+      <AuthorPhoto src={authorAvator} />
       <div>
-        <AuthorName>作者是寶寶</AuthorName>
-        <CreateTime>2020/01/23 00:00</CreateTime>
+        <AuthorName>{author}</AuthorName>
+        <CreateTime>
+          {moment(createdAt).format("YYYY-MM-DD HH:mm:ss")}
+        </CreateTime>
       </div>
     </Wrapper>
   );

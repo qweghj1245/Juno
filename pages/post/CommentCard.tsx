@@ -1,6 +1,8 @@
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
+import { Comment } from "api/PostApi";
+import moment from "moment";
 import React from "react";
 import styled from "styled-components";
 
@@ -28,18 +30,26 @@ const CreateTime = styled.h5`
   color: ${({ theme: { color } }) => color.grey500};
 `;
 
-const Comment = styled.p`
+const Content = styled.p`
   ${fontStyle("16px", "22px")};
 `;
 
-export default function CommentCard() {
+type Props = {
+  comment: Comment;
+};
+
+export default function CommentCard(props: Props) {
+  const { comment } = props;
+
   return (
     <Wrapper>
-      <Avator />
+      <Avator src={comment.userInfo.avator || ""} alt={comment.userInfo.name} />
       <div>
-        <Name>Jemy</Name>
-        <CreateTime>2020/6/20 12:12</CreateTime>
-        <Comment>我是麥胞，今天學會濾油</Comment>
+        <Name>{comment.userInfo.name}</Name>
+        <CreateTime>
+          {moment(comment.createdAt).format("YYYY-MM-DD HH:mm")}
+        </CreateTime>
+        <Content>{comment.content}</Content>
       </div>
     </Wrapper>
   );

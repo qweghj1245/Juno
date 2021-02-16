@@ -2,6 +2,8 @@
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
+import { RelationPost } from "api/PostApi";
+import moment from "moment";
 import Link from "next/link";
 import React from "react";
 import styled from "styled-components";
@@ -10,7 +12,6 @@ const Wrapper = styled.div`
   display: block;
   padding: 16px 0;
   background: #ffffff;
-  position: relative;
   border-bottom: solid 1px ${({ theme: { color } }) => color.grey100};
 `;
 
@@ -29,52 +30,42 @@ const PostTitle = styled.h2`
 `;
 
 const PostImage = styled.img`
-  position: absolute;
-  right: 0px;
-  bottom: 16px;
   border-radius: 10px;
   ${sizeStyle("56px", "56px")};
 `;
 
-const Icon = styled.img`
-  margin-right: 4px;
-  ${sizeStyle("20px", "20px")};
+const CreateTime = styled.p`
+  ${fontStyle("12px", "17px")};
+  color: ${({ theme: { color } }) => color.grey500};
 `;
 
-const IconCounter = styled.p`
-  margin-right: 8px;
-  color: ${({ theme: { color } }) => color.grey500};
-  ${fontStyle("14px", "20px")};
-`;
+type Props = {
+  post: RelationPost;
+};
 
 const testImage =
   "https://www.humanesociety.org/sites/default/files/styles/1240x698/public/2020-07/cat-410261.jpg?h=191a1c11&itok=c4ksCwxz";
 
-export default function PostCard() {
+export default function PostCard(props: Props) {
+  const { post } = props;
+
   return (
-    <Link href="/post/5">
+    <Link href={`/post/${post.id}`}>
       <Wrapper>
         <Row>
           <Tag>省錢</Tag>
           <Tag>麥當勞</Tag>
           <Tag>分享</Tag>
         </Row>
-        <PostTitle>實用麥當勞省錢技巧</PostTitle>
-        <Row>
-          <Row>
-            <Icon src={testImage} />
-            <IconCounter>12</IconCounter>
-          </Row>
-          <Row>
-            <Icon src={testImage} />
-            <IconCounter>2</IconCounter>
-          </Row>
-          <Row>
-            <Icon src={testImage} />
-            <IconCounter>2</IconCounter>
-          </Row>
+        <Row justifyContent="space-between">
+          <div>
+            <PostTitle>{post.title}</PostTitle>
+            <CreateTime>
+              {moment(post.createdAt).format("YYYY.MM.DD")}
+            </CreateTime>
+          </div>
+          <PostImage src={testImage} />
         </Row>
-        <PostImage src={testImage} />
       </Wrapper>
     </Link>
   );

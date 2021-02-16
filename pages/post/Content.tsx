@@ -1,5 +1,6 @@
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
+import { PostTags } from "api/PostApi";
 import React from "react";
 import styled from "styled-components";
 
@@ -9,16 +10,11 @@ const Wrapper = styled.main`
 `;
 
 const Category = styled.h2`
-  margin-right: 26px;
   color: ${({ theme: { color } }) => color.primary};
   ${fontStyle("18px", "25px", "500")};
 `;
 
 const Tag = styled.h3`
-  padding: 4px 8px;
-  margin-right: 4px;
-  border-radius: 14px;
-  border: solid 1px #008c9f4d;
   ${fontStyle("14px", "20px")};
 `;
 
@@ -31,17 +27,35 @@ const Paragraph = styled.p`
   ${fontStyle("16px", "22px")};
 `;
 
-export default function Content() {
+const CategoryDot = styled.div`
+  color: ${({ theme: { color } }) => color.grey500};
+  ${fontStyle("18px", "25px", "500")};
+`;
+
+type Props = {
+  categoryName: string;
+  tags?: PostTags[];
+  title: string;
+  content: string;
+};
+
+export default function Content(props: Props) {
+  const { categoryName, tags, title, content } = props;
+
   return (
     <Wrapper>
       <Row>
-        <Category>分類</Category>
-        <Tag>省錢</Tag>
-        <Tag>麥當勞</Tag>
-        <Tag>分享</Tag>
+        <Category>{categoryName}</Category>
+        {tags && <CategoryDot>・</CategoryDot>}
+        {tags &&
+          tags.map((tag, idx, arr) => (
+            <Tag key={tag.tagId}>
+              {`${tag.name}${idx !== arr.length - 1 ? "・" : ""}`}
+            </Tag>
+          ))}
       </Row>
-      <PostTitle>實用麥當勞省錢技巧</PostTitle>
-      <Paragraph>內文補充字數補充字數</Paragraph>
+      <PostTitle>{title}</PostTitle>
+      <Paragraph>{content}</Paragraph>
     </Wrapper>
   );
 }

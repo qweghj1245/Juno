@@ -1,4 +1,5 @@
 import fontStyle from "@styles/fontStyle";
+import { Comment, RelationPost } from "api/PostApi";
 import React from "react";
 import styled from "styled-components";
 import CommentCard from "./CommentCard";
@@ -36,10 +37,12 @@ export enum SectionType {
 
 type Props = {
   sectionType: SectionType;
+  comments?: Comment[];
+  relationPosts?: RelationPost[];
 };
 
 export default function SectionContent(props: Props) {
-  const { sectionType } = props;
+  const { sectionType, comments, relationPosts } = props;
 
   switch (sectionType) {
     case SectionType.COMMENT:
@@ -47,9 +50,9 @@ export default function SectionContent(props: Props) {
         <>
           <Title>文章回應</Title>
           <Wrapper>
-            <CommentCard />
-            <CommentCard />
-            <CommentCard />
+            {comments?.map((comment) => (
+              <CommentCard key={comment.id} comment={comment} />
+            ))}
           </Wrapper>
           <SeeMoreComment>查看更多回應</SeeMoreComment>
         </>
@@ -59,9 +62,9 @@ export default function SectionContent(props: Props) {
         <Gap>
           <Title>相關文章</Title>
           <Wrapper>
-            <RelationCard />
-            <RelationCard />
-            <RelationCard />
+            {relationPosts?.map((post) => (
+              <RelationCard post={post} />
+            ))}
           </Wrapper>
         </Gap>
       );

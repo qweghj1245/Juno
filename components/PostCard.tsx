@@ -3,7 +3,7 @@ import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
 import textOverflow from "@styles/textOverflow";
-import { Post, PostTagsMap } from "api/PostApi";
+import { GroupPost, PostTagsMap } from "api/PostApi";
 import moment from "moment";
 import Link from "next/link";
 import React, { useMemo } from "react";
@@ -54,7 +54,7 @@ const testImage =
   "https://www.humanesociety.org/sites/default/files/styles/1240x698/public/2020-07/cat-410261.jpg?h=191a1c11&itok=c4ksCwxz";
 
 type Props = {
-  post: Post;
+  post: GroupPost;
   postTags: PostTagsMap;
 };
 
@@ -74,7 +74,7 @@ export default function PostCard(props: Props) {
   }, [postTags]);
 
   return (
-    <Link href="/post/2">
+    <Link href={`/post/${post.id}`}>
       <Wrapper>
         <Row justifyContent="space-between" alignItems="flex-start">
           <ContentWrapper>
