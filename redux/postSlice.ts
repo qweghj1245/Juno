@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import PostApi, {
   CommentsResults,
   FetchPostsQuery,
@@ -7,6 +7,8 @@ import PostApi, {
   RelationPost,
   SinglePost,
 } from "api/PostApi";
+import { HYDRATE } from "next-redux-wrapper";
+import { RootState } from "./rootReducer";
 
 interface IState {
   postsResult: PostsResults;
@@ -70,11 +72,19 @@ export const fetchRelationPosts = createAsyncThunk(
   }
 );
 
+const hydrate = createAction<RootState>(HYDRATE);
+
 const postSlice = createSlice({
   name: "post",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
+    builder.addCase(hydrate, (state, action) => {
+      return {
+        ...state,
+        ...action.payload["post"],
+      };
+    });
     builder.addCase(fetchPosts.fulfilled, (state, action) => {
       state.postsResult = action.payload;
     });
@@ -93,4 +103,5 @@ const postSlice = createSlice({
   },
 });
 
+export const postState = (state: RootState) => state.post;
 export default postSlice.reducer;
