@@ -3,7 +3,9 @@ import axios, { AxiosInstance } from "axios";
 export default class CoreApi {
   private axiosInstance: AxiosInstance;
 
-  private baseUrl: string = "http://nginx:80/api";
+  private serverUrl: string = "http://nginx:80/api";
+
+  private clientUrl: string = "/api";
 
   private timeout: number = 60000;
 
@@ -12,7 +14,7 @@ export default class CoreApi {
   constructor(config?: { apiVersion?: string }) {
     this.apiVersion = config?.apiVersion || "";
     this.axiosInstance = axios.create({
-      baseURL: this.baseUrl,
+      baseURL: typeof window === "undefined" ? this.serverUrl : this.clientUrl,
       timeout: this.timeout,
       headers: {
         "Content-Type": "application/json",

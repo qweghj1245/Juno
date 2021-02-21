@@ -7,7 +7,7 @@ import React, { FC } from "react";
 import styled from "styled-components";
 
 const Wrapper = styled.main`
-  padding: 0 16px;
+  padding: 0 16px 52px 16px;
 `;
 
 type Props = PostsResults & {

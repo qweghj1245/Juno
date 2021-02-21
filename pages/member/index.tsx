@@ -1,4 +1,3 @@
-import PostCard from "@components/PostCard";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
@@ -116,13 +115,13 @@ export default function Member() {
       <Selector>
         <Select styles={SelectStyle} options={options} />
       </Selector>
-      <CardWrapper>
+      {/* <CardWrapper>
         <PostCard />
         <PostCard />
         <PostCard />
         <PostCard />
         <PostCard />
-      </CardWrapper>
+      </CardWrapper> */}
     </>
   );
 }

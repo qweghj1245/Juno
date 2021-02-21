@@ -1,7 +1,11 @@
+import { RootState } from "@redux/rootReducer";
+import { fetchGoogleSignIn } from "@redux/userSlice";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
-import React from "react";
+import { signIn, useSession } from "next-auth/client";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
 enum LoginType {
@@ -54,9 +58,24 @@ const Text = styled.span`
 `;
 
 export default function Login() {
+  const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.user);
+
+  const [session] = useSession();
+
+  useEffect(() => {
+    if (session) {
+      dispatch(fetchGoogleSignIn(session.idToken));
+    }
+  }, [session]);
+
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
+
   return (
     <Wrapper>
-      <LoginButton type={LoginType.GOOGLE}>
+      <LoginButton type={LoginType.GOOGLE} onClick={() => signIn("google")}>
         <CustomImage
           src="/static/logo_google_white@3x.png"
           alt="google sign in"
