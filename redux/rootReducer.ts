@@ -1,10 +1,10 @@
 import { combineReducers } from "@reduxjs/toolkit";
+import member from "./memberSlice";
 import post from "./postSlice";
-import user from "./userSlice";
 
 const rootReducer = combineReducers({
   post,
-  user,
+  member,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

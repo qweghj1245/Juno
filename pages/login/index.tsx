@@ -1,11 +1,10 @@
-import { RootState } from "@redux/rootReducer";
-import { fetchGoogleSignIn } from "@redux/userSlice";
+import { fetchGoogleSignIn } from "@redux/memberSlice";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
-import { signIn, useSession } from "next-auth/client";
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
+import { GoogleLogin } from "react-google-login";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
 
 enum LoginType {
@@ -59,29 +58,34 @@ const Text = styled.span`
 
 export default function Login() {
   const dispatch = useDispatch();
-  const user = useSelector((state: RootState) => state.user);
 
-  const [session] = useSession();
+  const responseSuccess = (googleUser: any) => {
+    const id_token = googleUser.getAuthResponse().id_token;
+    dispatch(fetchGoogleSignIn(id_token));
+  };
 
-  useEffect(() => {
-    if (session) {
-      dispatch(fetchGoogleSignIn(session.idToken));
-    }
-  }, [session]);
-
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
+  const failure = () => {
+    console.log("fail");
+  };
 
   return (
     <Wrapper>
-      <LoginButton type={LoginType.GOOGLE} onClick={() => signIn("google")}>
-        <CustomImage
-          src="/static/logo_google_white@3x.png"
-          alt="google sign in"
-        />
-        <Text>Google 登入</Text>
-      </LoginButton>
+      <GoogleLogin
+        clientId={process.env.GOOGLE_SIGN_IN!}
+        buttonText="Sign in with Google"
+        onSuccess={responseSuccess}
+        onFailure={failure}
+        cookiePolicy={"single_host_origin"}
+        render={(renderProps) => (
+          <LoginButton type={LoginType.GOOGLE} onClick={renderProps.onClick}>
+            <CustomImage
+              src="/static/logo_google_white@3x.png"
+              alt="google sign in"
+            />
+            <Text>Google 登入</Text>
+          </LoginButton>
+        )}
+      />
       <LoginButton type={LoginType.FACEBOOK}>
         <CustomImage
           src="/static/logo_facebook_white@3x.png"

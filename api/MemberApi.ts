@@ -3,24 +3,24 @@ import CoreApi from "./CoreApi";
 
 const apiClient = new CoreApi({ apiVersion: "v1" });
 
-export enum UserRank {
+export enum MemberRank {
   ADMIN = 100,
   NORMAL = 200,
 }
 
-export enum UserSourceNumber {
+export enum MemberSourceNumber {
   GOOGLE = 1,
   FACEBOOK = 2,
 }
 
-export interface UserProfile {
+export interface MemberProfile {
   id: number;
   email: string;
   name: string;
   description: string;
   avator: string;
-  source: UserSourceNumber;
-  rank: UserRank;
+  source: MemberSourceNumber;
+  rank: MemberRank;
   created_at: number;
   update_at: number;
   is_active: boolean;
@@ -28,13 +28,13 @@ export interface UserProfile {
   quota: number;
 }
 
-export interface UserAPI {
+export interface MemberAPI {
   fetchGoogleSignIn: (
     idToken: string
-  ) => Promise<{ user: UserProfile; token: string }>;
+  ) => Promise<{ member: MemberProfile; token: string }>;
 }
 
-const UserApi: UserAPI = {
+const MemberApi: MemberAPI = {
   fetchGoogleSignIn: async (idToken) => {
     const response = await apiClient.post("/auth/google_sign_in/", {
       token: idToken,
@@ -43,4 +43,4 @@ const UserApi: UserAPI = {
   },
 };
 
-export default UserApi;
+export default MemberApi;

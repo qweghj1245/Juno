@@ -1,30 +1,30 @@
 import { createAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import UserApi, { UserProfile } from "api/UserApi";
+import MemberApi, { MemberProfile } from "api/MemberApi";
 import { HYDRATE } from "next-redux-wrapper";
 import { RootState } from "./rootReducer";
 
 interface IState {
-  userProile?: UserProfile;
+  memberProile: MemberProfile | null;
   accessToken: string;
 }
 
 const initialState: IState = {
-  userProile: undefined,
+  memberProile: null,
   accessToken: "",
 };
 
 export const fetchGoogleSignIn = createAsyncThunk(
   "post/fetchGoogleSignIn",
   async (idToken: string) => {
-    const response = await UserApi.fetchGoogleSignIn(idToken);
+    const response = await MemberApi.fetchGoogleSignIn(idToken);
     return response;
   }
 );
 
 const hydrate = createAction<RootState>(HYDRATE);
 
-const userSlice = createSlice({
-  name: "user",
+const memberSlice = createSlice({
+  name: "member",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -35,11 +35,11 @@ const userSlice = createSlice({
       };
     });
     builder.addCase(fetchGoogleSignIn.fulfilled, (state, action) => {
-      state.userProile = action.payload.user;
+      state.memberProile = action.payload.member;
       state.accessToken = action.payload.token;
     });
   },
 });
 
-export const userState = (state: RootState) => state.user;
-export default userSlice.reducer;
+export const memberState = (state: RootState) => state.member;
+export default memberSlice.reducer;
