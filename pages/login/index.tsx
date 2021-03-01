@@ -1,5 +1,4 @@
-import { fetchGoogleSignIn } from "@redux/memberSlice";
-import { RootState } from "@redux/rootReducer";
+import { fetchGoogleSignIn, memberState } from "@redux/memberSlice";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
@@ -64,7 +63,7 @@ export default function Login() {
   const router = useRouter();
 
   const dispatch = useDispatch();
-  const member = useSelector((state: RootState) => state.member);
+  const { memberProile } = useSelector(memberState);
 
   const responseSuccess = (googleUser: any) => {
     const id_token = googleUser.getAuthResponse().id_token;
@@ -75,13 +74,11 @@ export default function Login() {
     console.log("fail");
   };
 
-  console.log(member);
-
   useEffect(() => {
-    if (member.memberProile) {
+    if (memberProile) {
       router.push("/member");
     }
-  }, [member, dispatch]);
+  }, [dispatch]);
 
   return (
     <Wrapper>

@@ -17,17 +17,25 @@ export interface MemberProfile {
   name: string;
   description: string;
   avator: string;
+  avatorAlt: string;
   source: MemberSourceNumber;
   rank: MemberRank;
-  created_at: number;
-  update_at: number;
-  is_active: boolean;
-  points_id: number;
+  createdAt: number;
+  updateAt: number;
+  isActive: boolean;
+  pointsId: number;
   quota: number;
+}
+
+export interface MemberAggregate {
+  quota: string | null;
+  publishPostCount: string;
+  bePraised: string;
 }
 
 export interface MemberAPI {
   fetchMemberInfo: (requestHeader?: any) => Promise<MemberProfile>;
+  fetchMemberAggregate: () => Promise<MemberAggregate>;
 }
 
 const apiClient = new CoreApi({ apiVersion: "" });
@@ -35,6 +43,10 @@ const apiClient = new CoreApi({ apiVersion: "" });
 const MemberApi: MemberAPI = {
   fetchMemberInfo: async (requestHeader) => {
     const response = await apiClient.get("/member/", {}, requestHeader);
+    return convertToCamelCase(response.data.result);
+  },
+  fetchMemberAggregate: async () => {
+    const response = await apiClient.get("/member/aggregate/");
     return convertToCamelCase(response.data.result);
   },
 };

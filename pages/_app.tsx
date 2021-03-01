@@ -18,15 +18,15 @@ const Application = (props: any) => {
 };
 
 Application.getInitialProps = async ({ ctx }: any) => {
-  if (ctx.req) {
-    try {
+  try {
+    if (ctx.req) {
       ctx.store.dispatch(setRequestHeader(ctx.req.headers));
-      await ctx.store.dispatch(fetchMemberInfo());
-    } catch (error) {
-      console.log(456);
+
+      if (ctx.req?.headers?.cookie) {
+        await ctx.store.dispatch(fetchMemberInfo());
+      }
     }
-  } else {
-  }
+  } catch (error) {}
 
   return { props: {} };
 };

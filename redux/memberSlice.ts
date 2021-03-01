@@ -1,15 +1,17 @@
 import { createAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AuthApi from "api/AuthApi";
-import MemberApi, { MemberProfile } from "api/MemberApi";
+import MemberApi, { MemberAggregate, MemberProfile } from "api/MemberApi";
 import { HYDRATE } from "next-redux-wrapper";
 import { RootState } from "./rootReducer";
 
 interface IState {
   memberProile: MemberProfile | null;
+  memberAggregate: MemberAggregate | null;
 }
 
 const initialState: IState = {
   memberProile: null,
+  memberAggregate: null,
 };
 
 export const fetchGoogleSignIn = createAsyncThunk(
@@ -28,6 +30,15 @@ export const fetchMemberInfo = createAsyncThunk(
     return response;
   }
 );
+
+export const fetchMemberAggregate = createAsyncThunk(
+  "member/fetchMemberAggregate",
+  async () => {
+    const response = await MemberApi.fetchMemberAggregate();
+    return response;
+  }
+);
+
 const hydrate = createAction<RootState>(HYDRATE);
 
 const memberSlice = createSlice({
@@ -46,6 +57,9 @@ const memberSlice = createSlice({
     });
     builder.addCase(fetchMemberInfo.fulfilled, (state, action) => {
       state.memberProile = action.payload;
+    });
+    builder.addCase(fetchMemberAggregate.fulfilled, (state, action) => {
+      state.memberAggregate = action.payload;
     });
   },
 });

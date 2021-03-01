@@ -1,7 +1,10 @@
+import { fetchMemberAggregate, memberState } from "@redux/memberSlice";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
-import React from "react";
+import { useRouter } from "next/router";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 import styled from "styled-components";
 
@@ -83,37 +86,51 @@ const options = [
 ];
 
 export default function Member() {
+  const router = useRouter();
+
+  const dispatch = useDispatch();
+  const { memberProile, memberAggregate } = useSelector(memberState);
+
+  useEffect(() => {
+    if (memberProile) {
+      dispatch(fetchMemberAggregate());
+    } else {
+      router.push("/login");
+    }
+  }, []);
+
   return (
     <>
       <MemberInfo>
         <Row>
-          <Avator />
-          <Name>我是小笨寶寶</Name>
+          <Avator src={memberProile?.avator} alt={memberProile?.avatorAlt} />
+          <Name>{memberProile?.name}</Name>
           <SettingScope>
             <CustomImage src="/static/icon_cog_gray@3x.png" alt="" />
           </SettingScope>
         </Row>
-        <MemberIntro>
-          宜蘭平埔族，在地生活三十年，三代傳承農耕經驗
-          二十年，蘭陽平原農業委員會會長、永續環境耕作講師
-        </MemberIntro>
+        <MemberIntro>{memberProile?.description}</MemberIntro>
       </MemberInfo>
       <TargetGrid>
         <div>
           <Target>文章數</Target>
-          <TargetCount>200</TargetCount>
+          <TargetCount>{memberAggregate?.publishPostCount}</TargetCount>
         </div>
         <div>
           <Target>總讚數</Target>
-          <TargetCount>200</TargetCount>
+          <TargetCount>{memberAggregate?.bePraised}</TargetCount>
         </div>
         <div>
           <Target>積分</Target>
-          <TargetCount>200</TargetCount>
+          <TargetCount>{memberAggregate?.quota || "0"}</TargetCount>
         </div>
       </TargetGrid>
       <Selector>
-        <Select styles={SelectStyle} options={options} />
+        <Select
+          defaultValue={{ value: "owner", label: "發表的文章" }}
+          styles={SelectStyle}
+          options={options}
+        />
       </Selector>
       {/* <CardWrapper>
         <PostCard />
