@@ -16,6 +16,7 @@ export default class CoreApi {
     this.axiosInstance = axios.create({
       baseURL: typeof window === "undefined" ? this.serverUrl : this.clientUrl,
       timeout: this.timeout,
+      withCredentials: true,
       headers: {
         "Content-Type": "application/json",
       },

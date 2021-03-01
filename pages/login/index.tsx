@@ -1,11 +1,12 @@
-import { fetchGoogleSignIn } from "@redux/memberSlice";
+import { fetchGoogleSignIn, fetchMemberInfo } from "@redux/memberSlice";
+import { RootState } from "@redux/rootReducer";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
 import getConfig from "next/config";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { GoogleLogin } from "react-google-login";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 const { publicRuntimeConfig } = getConfig();
 
@@ -60,6 +61,9 @@ const Text = styled.span`
 
 export default function Login() {
   const dispatch = useDispatch();
+  const member = useSelector((state: RootState) => state.member);
+
+  const [init, setInit] = useState(false);
 
   const responseSuccess = (googleUser: any) => {
     const id_token = googleUser.getAuthResponse().id_token;
@@ -69,6 +73,14 @@ export default function Login() {
   const failure = () => {
     console.log("fail");
   };
+
+  useEffect(() => {
+    console.log(member);
+    if (member.memberProile && !init) {
+      dispatch(fetchMemberInfo());
+      setInit(true);
+    }
+  }, [member, dispatch]);
 
   return (
     <Wrapper>
