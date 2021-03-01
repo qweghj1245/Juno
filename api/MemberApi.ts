@@ -27,14 +27,14 @@ export interface MemberProfile {
 }
 
 export interface MemberAPI {
-  fetchMemberInfo: () => Promise<MemberProfile>;
+  fetchMemberInfo: (requestHeader?: any) => Promise<MemberProfile>;
 }
 
 const apiClient = new CoreApi({ apiVersion: "" });
 
 const MemberApi: MemberAPI = {
-  fetchMemberInfo: async () => {
-    const response = await apiClient.get("/member/");
+  fetchMemberInfo: async (requestHeader) => {
+    const response = await apiClient.get("/member/", {}, requestHeader);
     return convertToCamelCase(response.data.result);
   },
 };

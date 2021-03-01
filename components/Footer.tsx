@@ -56,7 +56,7 @@ export default function Footer() {
           />
         </div>
       </Link>
-      <Link href="/">
+      <Link href="/login">
         <div>
           <CustomImage
             src={

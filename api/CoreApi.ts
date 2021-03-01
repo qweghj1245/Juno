@@ -23,9 +23,10 @@ export default class CoreApi {
     });
   }
 
-  public get = (url: string, queryParams?: object) => {
+  public get = (url: string, queryParams?: object, headers?: object) => {
     return this.axiosInstance.get(`${this.apiVersion}${url}`, {
       params: queryParams,
+      headers,
     });
   };
 

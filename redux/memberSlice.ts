@@ -22,8 +22,9 @@ export const fetchGoogleSignIn = createAsyncThunk(
 
 export const fetchMemberInfo = createAsyncThunk(
   "member/fetchMemberInfo",
-  async () => {
-    const response = await MemberApi.fetchMemberInfo();
+  async (_, thunkApi) => {
+    const { appConfig } = thunkApi.getState() as RootState;
+    const response = await MemberApi.fetchMemberInfo(appConfig.requestHeader);
     return response;
   }
 );
