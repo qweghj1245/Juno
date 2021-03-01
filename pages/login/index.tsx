@@ -2,10 +2,12 @@ import { fetchGoogleSignIn } from "@redux/memberSlice";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
+import getConfig from "next/config";
 import React from "react";
 import { GoogleLogin } from "react-google-login";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
+const { publicRuntimeConfig } = getConfig();
 
 enum LoginType {
   FACEBOOK = "Facebook",
@@ -71,7 +73,7 @@ export default function Login() {
   return (
     <Wrapper>
       <GoogleLogin
-        clientId={process.env.GOOGLE_SIGN_IN!}
+        clientId={publicRuntimeConfig.NEXT_GOOGLE_SIGN_IN}
         buttonText="Sign in with Google"
         onSuccess={responseSuccess}
         onFailure={failure}

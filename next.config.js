@@ -1,6 +1,6 @@
 module.exports = {
-  env: {
-    ICON_URL: "/static/assets/icons",
+  publicRuntimeConfig: {
+    NEXT_GOOGLE_SIGN_IN: process.env.GOOGLE_SIGN_IN,
   },
   webpackDevMiddleware: config => {
     config.watchOptions = {
