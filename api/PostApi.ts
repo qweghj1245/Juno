@@ -86,6 +86,13 @@ export interface RelationPost {
   categoryId: number;
 }
 
+export interface FetchCreatePost {
+  title: string;
+  content: string;
+  categoryId: number;
+  tags: number[];
+}
+
 const apiClient = new CoreApi({ apiVersion: "v1" });
 
 export interface PostAPI {
@@ -94,6 +101,7 @@ export interface PostAPI {
   fetchPost: (postId: number) => Promise<SinglePost>;
   fetchComments: (postId: number) => Promise<CommentsResults>;
   fetchRelationPosts: (postId: number) => Promise<RelationPost[]>;
+  fetchCreatePost: (payload: FetchCreatePost) => Promise<void>;
 }
 
 const PostApi: PostAPI = {
@@ -139,6 +147,15 @@ const PostApi: PostAPI = {
   fetchRelationPosts: async (postId) => {
     const response = await apiClient.get(`/post/relation/${postId}/`);
     return convertToCamelCase(response.data.result);
+  },
+  fetchCreatePost: async (payload) => {
+    const actionPayload = {
+      title: payload.title,
+      content: payload.content,
+      category_id: payload.categoryId,
+      tags: payload.tags,
+    };
+    await apiClient.post("/post/", actionPayload);
   },
 };
 

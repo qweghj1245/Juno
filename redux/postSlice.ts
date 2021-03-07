@@ -1,6 +1,7 @@
 import { createAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import PostApi, {
   CommentsResults,
+  FetchCreatePost,
   FetchPostsQuery,
   PostsResults,
   PostTagsMap,
@@ -11,6 +12,7 @@ import { HYDRATE } from "next-redux-wrapper";
 import { RootState } from "./rootReducer";
 
 interface IState {
+  isCreated: boolean;
   postsResult: PostsResults;
   postTags: PostTagsMap;
   post: SinglePost | null;
@@ -19,6 +21,7 @@ interface IState {
 }
 
 const initialState: IState = {
+  isCreated: false,
   postsResult: {
     count: 0,
     posts: [],
@@ -72,12 +75,24 @@ export const fetchRelationPosts = createAsyncThunk(
   }
 );
 
+export const fetchCreatePost = createAsyncThunk(
+  "post/fetchCreatePost",
+  async (payload: FetchCreatePost) => {
+    await PostApi.fetchCreatePost(payload);
+    return "Success";
+  }
+);
+
 const hydrate = createAction<RootState>(HYDRATE);
 
 const postSlice = createSlice({
   name: "post",
   initialState,
-  reducers: {},
+  reducers: {
+    setIsNotCreate: (state) => {
+      state.isCreated = false;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(hydrate, (state, action) => {
       return {
@@ -100,8 +115,12 @@ const postSlice = createSlice({
     builder.addCase(fetchRelationPosts.fulfilled, (state, action) => {
       state.relationPosts = action.payload;
     });
+    builder.addCase(fetchCreatePost.fulfilled, (state) => {
+      state.isCreated = true;
+    });
   },
 });
 
 export const postState = (state: RootState) => state.post;
+export const { setIsNotCreate } = postSlice.actions;
 export default postSlice.reducer;
