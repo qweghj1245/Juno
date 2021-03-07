@@ -1,8 +1,16 @@
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
-import { convertFromRaw, convertToRaw, Editor, EditorState } from "draft-js";
+import {
+  ContentState,
+  convertFromRaw,
+  convertToRaw,
+  Editor,
+  EditorState,
+} from "draft-js";
 import "draft-js/dist/Draft.css";
-import React, { useState } from "react";
+import draftToHtml from "draftjs-to-html";
+import htmlToDraft from "html-to-draftjs";
+import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
@@ -11,7 +19,12 @@ const Wrapper = styled.div`
   .DraftEditor-root {
     padding: 16px;
     border-top: solid 1px ${({ theme: { color } }) => color.grey100};
-    ${fontStyle("12px", "17px")};
+    height: calc(100vh - 230px);
+    ${fontStyle("14px", "17px")};
+  }
+
+  p {
+    height: 16px;
   }
 `;
 
@@ -51,19 +64,55 @@ const TitleInput = styled.input`
   ${fontStyle("20px", "27px", "bold")};
 `;
 
+// for `draftjs getIn` undefined
+const emptyContentState = convertFromRaw({
+  entityMap: {},
+  blocks: [
+    {
+      text: "",
+      key: "foo",
+      type: "unstyled",
+      entityRanges: [],
+      depth: 0,
+      inlineStyleRanges: [],
+    },
+  ],
+});
+
 export default function PostEditor() {
+  const [init, setInit] = useState(false);
   const [editorState, setEditorState] = useState<EditorState>(
-    EditorState.createEmpty(),
+    EditorState.createWithContent(emptyContentState)
   );
 
   const onChange = (edt: EditorState) => {
     // {"blocks":[{"key":"2nr1i","text":"wwweeer","type":"sunstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}
-    const json = convertToRaw(edt.getCurrentContent());
-    console.log("1111", edt.getCurrentContent());
-    console.log("1", JSON.stringify(json)); // 字串化丟入 db
-    console.log("2", EditorState.createWithContent(convertFromRaw(json))); // convertFromRaw 轉成的格式是 ContentState, 但編輯器要的格式是 EditorState
-    console.log("3", edt); // EditorState
+    // const json = convertToRaw(edt.getCurrentContent());
+    // console.log("1111", edt.getCurrentContent());
+    // console.log("1", JSON.stringify(json)); // 字串化丟入 db
+    // console.log("2", EditorState.createWithContent(convertFromRaw(json))); // convertFromRaw 轉成的格式是 ContentState, 但編輯器要的格式是 EditorState
+    // console.log("3", edt); // EditorState
     setEditorState(edt);
+    if (!init) setInit(true);
+  };
+
+  const draftjsToHTML = useMemo(() => {
+    const json = convertToRaw(editorState.getCurrentContent());
+    return draftToHtml(json);
+  }, [editorState]);
+
+  const htmlToDraftjs = (html: any) => {
+    if (init) {
+      const blocksFromHtml = htmlToDraft(html);
+      const { contentBlocks, entityMap } = blocksFromHtml;
+      const contentState = ContentState.createFromBlockArray(
+        contentBlocks,
+        entityMap
+      );
+      const editorState = EditorState.createWithContent(contentState);
+      return editorState;
+    }
+    return "";
   };
 
   return (
