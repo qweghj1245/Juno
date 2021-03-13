@@ -10,8 +10,10 @@ import {
 import "draft-js/dist/Draft.css";
 import draftToHtml from "draftjs-to-html";
 import htmlToDraft from "html-to-draftjs";
+import { useRouter } from "next/router";
 import React, { useMemo, useState } from "react";
 import styled from "styled-components";
+import TagSelect from "./TagSelect";
 
 const Wrapper = styled.div`
   height: 100vh;
@@ -19,12 +21,8 @@ const Wrapper = styled.div`
   .DraftEditor-root {
     padding: 16px;
     border-top: solid 1px ${({ theme: { color } }) => color.grey100};
-    height: calc(100vh - 230px);
+    height: calc(100vh - 233px);
     ${fontStyle("14px", "17px")};
-  }
-
-  p {
-    height: 16px;
   }
 `;
 
@@ -48,19 +46,10 @@ const Deploy = styled.button`
   ${fontStyle("12px", "17px", "bold")};
 `;
 
-const TagInput = styled.input`
-  width: 100%;
-  padding: 16px;
-  border: 0;
-  border-top: solid 1px ${({ theme: { color } }) => color.grey100};
-  ${fontStyle("12px", "17px")};
-`;
-
 const TitleInput = styled.input`
   width: 100%;
   padding: 16px;
   border: 0;
-  border-top: solid 1px ${({ theme: { color } }) => color.grey100};
   ${fontStyle("20px", "27px", "bold")};
 `;
 
@@ -80,6 +69,8 @@ const emptyContentState = convertFromRaw({
 });
 
 export default function PostEditor() {
+  const router = useRouter();
+
   const [init, setInit] = useState(false);
   const [editorState, setEditorState] = useState<EditorState>(
     EditorState.createWithContent(emptyContentState)
@@ -115,13 +106,19 @@ export default function PostEditor() {
     return "";
   };
 
+  const deployPost = () => {};
+
+  const goBack = () => {
+    router.back();
+  };
+
   return (
     <Wrapper>
       <ButtonWrapper>
-        <Cancel>取消</Cancel>
-        <Deploy>發布</Deploy>
+        <Cancel onClick={goBack}>取消</Cancel>
+        <Deploy onClick={deployPost}>發布</Deploy>
       </ButtonWrapper>
-      <TagInput placeholder="＋添加文章標籤" />
+      <TagSelect />
       <TitleInput placeholder="標題" />
       <Editor editorState={editorState} onChange={onChange} />
     </Wrapper>
