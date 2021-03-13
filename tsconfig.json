@@ -23,7 +23,9 @@
       "@components/*": ["components/*"],
       "@styles/*": ["styles/*"],
       "@icons/*": ["assets/icons/*"],
-      "@redux/*": ["redux/*"]
+      "@redux/*": ["redux/*"],
+      "@api/*": ["api/*"],
+      "@hooks/*": ["hooks/*"]
     }
   },
   "exclude": ["node_modules"],

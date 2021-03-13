@@ -11,11 +11,13 @@ import { RootState } from "./rootReducer";
 interface IState {
   searchTags: Tag[];
   newTags: NewTag[];
+  selectTagIds: number[];
 }
 
 const initialState: IState = {
   searchTags: [],
   newTags: [],
+  selectTagIds: [],
 };
 
 export const fetchTags = createAsyncThunk(
@@ -40,7 +42,11 @@ const hydrate = createAction<RootState>(HYDRATE);
 const tagSlice = createSlice({
   name: "tag",
   initialState,
-  reducers: {},
+  reducers: {
+    setSelectTagId: (state, action) => {
+      state.selectTagIds = [...state.selectTagIds, action.payload];
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(hydrate, (state, action) => {
       return {
@@ -58,4 +64,5 @@ const tagSlice = createSlice({
 });
 
 export const tagState = (state: RootState) => state.tag;
+export const { setSelectTagId } = tagSlice.actions;
 export default tagSlice.reducer;
