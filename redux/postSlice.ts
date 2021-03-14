@@ -18,6 +18,7 @@ interface IState {
   post: SinglePost | null;
   commentsResult: CommentsResults;
   relationPosts: RelationPost[];
+  categoryPostMap: { [categoryId: number]: PostsResults };
 }
 
 const initialState: IState = {
@@ -33,6 +34,7 @@ const initialState: IState = {
     comments: [],
   },
   relationPosts: [],
+  categoryPostMap: {},
 };
 
 export const fetchPosts = createAsyncThunk(
@@ -40,6 +42,19 @@ export const fetchPosts = createAsyncThunk(
   async (payload?: FetchPostsQuery) => {
     const response = await PostApi.fetchPosts(payload);
     return response;
+  }
+);
+
+export const fetchCategoryPosts = createAsyncThunk(
+  "post/fetchCategoryPosts",
+  async (payload: FetchPostsQuery, thunkApi) => {
+    const response = await PostApi.fetchPosts(payload);
+    const { post } = thunkApi.getState() as RootState;
+
+    return {
+      ...post.categoryPostMap,
+      [payload!.categoryId as number]: response,
+    };
   }
 );
 
@@ -102,6 +117,9 @@ const postSlice = createSlice({
     });
     builder.addCase(fetchPosts.fulfilled, (state, action) => {
       state.postsResult = action.payload;
+    });
+    builder.addCase(fetchCategoryPosts.fulfilled, (state, action) => {
+      state.categoryPostMap = action.payload;
     });
     builder.addCase(fetchPostTags.fulfilled, (state, action) => {
       state.postTags = action.payload;

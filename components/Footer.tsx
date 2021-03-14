@@ -23,7 +23,8 @@ const CustomImage = styled.img`
 `;
 
 const homeMatch = (location: NextRouter) => location.pathname === "/";
-const tagMatch = (location: NextRouter) => location.pathname === "/tag";
+const categoryMatch = (location: NextRouter) =>
+  location.pathname.includes("/category");
 const noticeMatch = (location: NextRouter) => location.pathname === "/notice";
 const memberMatch = (location: NextRouter) => location.pathname === "/member";
 
@@ -48,7 +49,7 @@ export default function Footer() {
         <div>
           <CustomImage
             src={
-              tagMatch(router)
+              categoryMatch(router)
                 ? "/static/lnr-tag@3x.png"
                 : "/static/icon_tag_gray@3x.png"
             }

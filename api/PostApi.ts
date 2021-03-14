@@ -13,6 +13,7 @@ export interface FetchPostsQuery {
   page?: number;
   search?: string;
   query?: QueryStatus;
+  categoryId?: number;
 }
 
 export interface GroupPost {
@@ -96,7 +97,7 @@ export interface FetchCreatePost {
 const apiClient = new CoreApi({ apiVersion: "v1" });
 
 export interface PostAPI {
-  fetchPosts: (payload?: FetchPostsQuery) => Promise<PostsResults>;
+  fetchPosts: (query?: FetchPostsQuery) => Promise<PostsResults>;
   fetchPostTags: (postIds: number[]) => Promise<PostTagsMap>;
   fetchPost: (postId: number) => Promise<SinglePost>;
   fetchComments: (postId: number) => Promise<CommentsResults>;
@@ -105,11 +106,12 @@ export interface PostAPI {
 }
 
 const PostApi: PostAPI = {
-  fetchPosts: async (payload) => {
+  fetchPosts: async (query) => {
     const response = await apiClient.get("/post/", {
-      page: payload?.page,
-      search: payload?.search,
-      query: payload?.query,
+      page: query?.page,
+      search: query?.search,
+      query: query?.query,
+      category_id: query?.categoryId,
     });
     return convertToCamelCase(response.data.result);
   },
