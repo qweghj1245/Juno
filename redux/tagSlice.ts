@@ -11,13 +11,13 @@ import { RootState } from "./rootReducer";
 interface IState {
   searchTags: Tag[];
   newTags: NewTag[];
-  selectTagIds: number[];
+  selectTags: NewTag[];
 }
 
 const initialState: IState = {
   searchTags: [],
   newTags: [],
-  selectTagIds: [],
+  selectTags: [],
 };
 
 export const fetchTags = createAsyncThunk(
@@ -43,8 +43,14 @@ const tagSlice = createSlice({
   name: "tag",
   initialState,
   reducers: {
-    setSelectTagId: (state, action) => {
-      state.selectTagIds = [...state.selectTagIds, action.payload];
+    setSelectTag: (state, action) => {
+      state.selectTags = [...state.selectTags, action.payload];
+    },
+    setSelectTagDelete: (state, action) => {
+      state.selectTags = action.payload;
+    },
+    setSearchTagsDelete: (state) => {
+      state.searchTags = [];
     },
   },
   extraReducers: (builder) => {
@@ -64,5 +70,9 @@ const tagSlice = createSlice({
 });
 
 export const tagState = (state: RootState) => state.tag;
-export const { setSelectTagId } = tagSlice.actions;
+export const {
+  setSelectTag,
+  setSelectTagDelete,
+  setSearchTagsDelete,
+} = tagSlice.actions;
 export default tagSlice.reducer;
