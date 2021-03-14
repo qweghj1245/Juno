@@ -31,15 +31,15 @@ const Home: FC<Props> = (props) => {
 export const getServerSideProps = wrapper.getServerSideProps(async (ctx) => {
   try {
     await ctx.store.dispatch(fetchPosts());
-    const posts = ctx.store.getState().post.postsResult;
-    const postIds = posts.posts.map((post) => post.id);
+    const postsResults = ctx.store.getState().post.postsResult;
+    const postIds = postsResults.posts.map((post) => post.id);
 
     await ctx.store.dispatch(fetchPostTags(postIds));
     const postTags = ctx.store.getState().post.postTags;
 
-    return { props: { ...posts, postTags } };
+    return { props: { ...postsResults, postTags } };
   } catch (error) {
-    return { props: {} };
+    return { props: { posts: [], postTags: {} } };
   }
 });
 

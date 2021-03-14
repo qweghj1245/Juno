@@ -44,7 +44,7 @@ export default function Footer() {
           />
         </div>
       </Link>
-      <Link href="/">
+      <Link href="/category">
         <div>
           <CustomImage
             src={
