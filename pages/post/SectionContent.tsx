@@ -45,8 +45,6 @@ type Props = {
 export default function SectionContent(props: Props) {
   const { sectionType, comments, relationPosts, postTags } = props;
 
-  console.log(postTags);
-
   switch (sectionType) {
     case SectionType.COMMENT:
       return (

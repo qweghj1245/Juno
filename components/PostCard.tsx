@@ -32,7 +32,7 @@ const PostTitle = styled.h2`
   ${fontStyle("18px", "25px", "bold")};
 `;
 
-const Description = styled.p`
+const Description = styled.div`
   width: 97%;
   margin-bottom: 8px;
   ${textOverflow};
@@ -73,6 +73,14 @@ export default function PostCard(props: Props) {
     return [];
   }, [postTags]);
 
+  const contentRefactor = useMemo(() => {
+    const content = post.content
+      .replace(/<[^>]*>/g, " ")
+      .replace(/\s{2,}/g, "，")
+      .trim();
+    return `<span>${content.substring(0, content.length - 1)}</span>`;
+  }, [post.content]);
+
   return (
     <Link href={`/post/${post.id}`}>
       <Wrapper>
@@ -80,7 +88,11 @@ export default function PostCard(props: Props) {
           <ContentWrapper>
             <Row>{getTags}</Row>
             <PostTitle>{post.title}</PostTitle>
-            <Description>{post.content}</Description>
+            <Description
+              dangerouslySetInnerHTML={{
+                __html: contentRefactor,
+              }}
+            />
             <CreateTime>
               {moment(post.createdAt).format("YYYY.MM.DD")}
             </CreateTime>

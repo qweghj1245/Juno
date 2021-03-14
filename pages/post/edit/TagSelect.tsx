@@ -92,7 +92,6 @@ export default function TagSelect() {
   };
 
   const onSearchText = (text: string) => {
-    console.log(text);
     if (selectTags.length < 3) {
       setDeleteCount(0);
       setSearchText(text);
@@ -107,12 +106,16 @@ export default function TagSelect() {
   };
 
   const onKeyPressDelete = (keyCode: number) => {
-    if (keyCode === 8 && deleteCount > 1 && selectTags.length > 0) {
-      const newSelectTags = [...selectTags];
-      newSelectTags.pop();
-      dispatch(setSelectTagDelete(newSelectTags));
-    } else {
-      setDeleteCount(deleteCount + 1);
+    if (keyCode === 8) {
+      if (deleteCount > 1 && selectTags.length > 0) {
+        const newSelectTags = [...selectTags];
+        newSelectTags.pop();
+        dispatch(setSelectTagDelete(newSelectTags));
+      } else if (!searchText && selectTags.length === 0) {
+        setFocusTagInput(false);
+      } else {
+        setDeleteCount(deleteCount + 1);
+      }
     }
   };
 

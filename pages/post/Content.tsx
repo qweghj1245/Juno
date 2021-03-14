@@ -23,7 +23,7 @@ const PostTitle = styled.h1`
   ${fontStyle("24px", "33px", "bold")};
 `;
 
-const Paragraph = styled.p`
+const Paragraph = styled.div`
   ${fontStyle("16px", "22px")};
 `;
 
@@ -55,7 +55,7 @@ export default function Content(props: Props) {
           ))}
       </Row>
       <PostTitle>{title}</PostTitle>
-      <Paragraph>{content}</Paragraph>
+      <Paragraph dangerouslySetInnerHTML={{ __html: content }} />
     </Wrapper>
   );
 }
