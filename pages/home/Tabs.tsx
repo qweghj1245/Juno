@@ -1,5 +1,5 @@
 import fontStyle from "@styles/fontStyle";
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
@@ -31,13 +31,43 @@ const Tab = styled.div<{ isActive?: boolean }>`
   ${fontStyle("14px", "20px", "bold")};
 `;
 
-const Tabs = () => (
-  <Wrapper>
-    <Center>
-      <Tab>熱門</Tab>
-      <Tab isActive>最新</Tab>
-    </Center>
-  </Wrapper>
-);
+enum TabState {
+  HOT = "HOT",
+  NEW = "NEW",
+}
+
+type Props = {
+  onHotClick: () => void;
+  onNewClick: () => void;
+};
+
+const Tabs = (props: Props) => {
+  const { onHotClick, onNewClick } = props;
+
+  const [tabState, setTabState] = useState<TabState>(TabState.HOT);
+
+  const hotClickAction = () => {
+    setTabState(TabState.HOT);
+    onHotClick();
+  };
+
+  const newClickAction = () => {
+    setTabState(TabState.NEW);
+    onNewClick();
+  };
+
+  return (
+    <Wrapper>
+      <Center>
+        <Tab isActive={tabState === TabState.HOT} onClick={hotClickAction}>
+          熱門
+        </Tab>
+        <Tab isActive={tabState === TabState.NEW} onClick={newClickAction}>
+          最新
+        </Tab>
+      </Center>
+    </Wrapper>
+  );
+};
 
 export default React.memo(Tabs);

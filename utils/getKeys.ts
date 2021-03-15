@@ -1,3 +1,3 @@
 export default function getKeys(hashmap: any) {
-  return Object.keys(hashmap).map((key) => Number(key));
+  return hashmap ? Object.keys(hashmap).map((key) => Number(key)) : [];
 }

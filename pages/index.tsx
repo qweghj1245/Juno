@@ -1,26 +1,28 @@
 import PostCard from "@components/PostCard";
 import Tabs from "@pages/home/Tabs";
-import { fetchPosts, fetchPostTags } from "@redux/postSlice";
+import { fetchPosts, postState } from "@redux/postSlice";
 import { wrapper } from "@redux/store";
-import { PostsResults, PostTagsMap } from "api/PostApi";
-import React, { FC } from "react";
+import { QueryStatus } from "api/PostApi";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
 const Wrapper = styled.main`
   padding: 0 16px 52px 16px;
 `;
 
-type Props = PostsResults & {
-  postTags: PostTagsMap;
-};
+const Home = () => {
+  const dispatch = useDispatch();
+  const { postsResult, postTags } = useSelector(postState);
 
-const Home: FC<Props> = (props) => {
-  const { posts, postTags } = props;
   return (
     <>
-      <Tabs />
+      <Tabs
+        onHotClick={() => dispatch(fetchPosts({ query: QueryStatus.HOT }))}
+        onNewClick={() => dispatch(fetchPosts({ query: QueryStatus.NEW }))}
+      />
       <Wrapper>
-        {posts.map((post) => (
+        {postsResult.posts.map((post) => (
           <PostCard key={post.id} post={post} postTags={postTags} />
         ))}
       </Wrapper>
@@ -30,17 +32,10 @@ const Home: FC<Props> = (props) => {
 
 export const getServerSideProps = wrapper.getServerSideProps(async (ctx) => {
   try {
-    await ctx.store.dispatch(fetchPosts());
-    const postsResults = ctx.store.getState().post.postsResult;
-    const postIds = postsResults.posts.map((post) => post.id);
+    await ctx.store.dispatch(fetchPosts({ query: QueryStatus.HOT }));
+  } catch (error) {}
 
-    await ctx.store.dispatch(fetchPostTags(postIds));
-    const postTags = ctx.store.getState().post.postTags;
-
-    return { props: { ...postsResults, postTags } };
-  } catch (error) {
-    return { props: { posts: [], postTags: {} } };
-  }
+  return { props: {} };
 });
 
 export default Home;

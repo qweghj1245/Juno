@@ -39,8 +39,10 @@ const initialState: IState = {
 
 export const fetchPosts = createAsyncThunk(
   "post/fetchPosts",
-  async (payload?: FetchPostsQuery) => {
+  async (payload?: FetchPostsQuery, thunkApi) => {
     const response = await PostApi.fetchPosts(payload);
+    const postIds = response.posts.map((item) => item.id);
+    await thunkApi.dispatch(fetchPostTags(postIds));
     return response;
   }
 );
@@ -49,8 +51,10 @@ export const fetchCategoryPosts = createAsyncThunk(
   "post/fetchCategoryPosts",
   async (payload: FetchPostsQuery, thunkApi) => {
     const response = await PostApi.fetchPosts(payload);
-    const { post } = thunkApi.getState() as RootState;
+    const postIds = response.posts.map((item) => item.id);
+    await thunkApi.dispatch(fetchPostTags(postIds));
 
+    const { post } = thunkApi.getState() as RootState;
     return {
       ...post.categoryPostMap,
       [payload!.categoryId as number]: response,

@@ -1,9 +1,10 @@
 import PostCard from "@components/PostCard";
 import Tabs from "@pages/home/Tabs";
-import { fetchCategoryPosts, fetchPostTags } from "@redux/postSlice";
+import { fetchCategoryPosts, postState } from "@redux/postSlice";
 import { wrapper } from "@redux/store";
-import { GroupPost, PostsResults, PostTagsMap } from "api/PostApi";
+import { QueryStatus } from "api/PostApi";
 import React, { FC } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
 const Wrapper = styled.main`
@@ -12,17 +13,39 @@ const Wrapper = styled.main`
 
 type Props = {
   categoryId: number;
-  postTags: PostTagsMap;
-  categoryPostMap: { [categoryId: number]: PostsResults };
 };
 
 const CategoryPosts: FC<Props> = (props) => {
-  const { categoryId, categoryPostMap, postTags } = props;
+  const { categoryId } = props;
+
+  const dispatch = useDispatch();
+  const { categoryPostMap, postTags } = useSelector(postState);
+
+  console.log(categoryPostMap);
+
+  const onHotClick = () => {
+    dispatch(
+      fetchCategoryPosts({
+        query: QueryStatus.HOT,
+        categoryId,
+      })
+    );
+  };
+
+  const onNewClick = () => {
+    dispatch(
+      fetchCategoryPosts({
+        query: QueryStatus.NEW,
+        categoryId,
+      })
+    );
+  };
+
   return (
     <>
-      <Tabs />
+      <Tabs onHotClick={onHotClick} onNewClick={onNewClick} />
       <Wrapper>
-        {categoryPostMap[categoryId].posts.map((post) => (
+        {categoryPostMap[categoryId]?.posts.map((post) => (
           <PostCard key={post.id} post={post} postTags={postTags} />
         ))}
       </Wrapper>
@@ -31,35 +54,18 @@ const CategoryPosts: FC<Props> = (props) => {
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(async (ctx) => {
-  const fetchPostTagsAction = async (posts: GroupPost[]) => {
-    const postIds = posts.map((post) => post.id);
-    await ctx.store.dispatch(fetchPostTags(postIds));
-    return ctx.store.getState().post.postTags;
-  };
+  const categoryId: number = ctx.query.id as any;
 
   try {
-    const categoryId: number = ctx.query.id as any;
     const { categoryPostMap } = ctx.store.getState().post;
-
-    if (categoryPostMap[categoryId]) {
-      // cache
-      const postTags = await fetchPostTagsAction(
-        categoryPostMap[categoryId].posts
+    if (!categoryPostMap[categoryId]) {
+      await ctx.store.dispatch(
+        fetchCategoryPosts({ query: QueryStatus.HOT, categoryId })
       );
-      return { props: { categoryId, categoryPostMap, postTags } };
-    } else {
-      // refetch
-      await ctx.store.dispatch(fetchCategoryPosts({ categoryId }));
-      const { categoryPostMap } = ctx.store.getState().post;
-
-      const postTags = await fetchPostTagsAction(
-        categoryPostMap[categoryId].posts
-      );
-      return { props: { categoryId, categoryPostMap, postTags } };
     }
-  } catch (error) {
-    return { props: { categoryId: -1, categoryPostMap: {}, postTags: {} } };
-  }
+  } catch (error) {}
+
+  return { props: { categoryId } };
 });
 
 export default CategoryPosts;
