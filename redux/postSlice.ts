@@ -19,6 +19,10 @@ interface IState {
   commentsResult: CommentsResults;
   relationPosts: RelationPost[];
   categoryPostMap: { [categoryId: number]: PostsResults };
+  positiveNegative: {
+    positiveCount: number;
+    negativeCount: number;
+  };
 }
 
 const initialState: IState = {
@@ -35,6 +39,10 @@ const initialState: IState = {
   },
   relationPosts: [],
   categoryPostMap: {},
+  positiveNegative: {
+    positiveCount: 0,
+    negativeCount: 0,
+  },
 };
 
 export const fetchPosts = createAsyncThunk(
@@ -102,6 +110,51 @@ export const fetchCreatePost = createAsyncThunk(
   }
 );
 
+//
+
+export const fetchAddPostPositive = createAsyncThunk(
+  "post/fetchAddPostPositive",
+  async (postId: number) => {
+    await PostApi.fetchAddPostPositive(postId);
+    return "Success";
+  }
+);
+
+export const fetchRemovePostPositive = createAsyncThunk(
+  "post/fetchRemovePostPositive",
+  async (postId: number) => {
+    await PostApi.fetchRemovePostPositive(postId);
+    return "Success";
+  }
+);
+
+export const fetchAddPostNegative = createAsyncThunk(
+  "post/fetchAddPostNegative",
+  async (postId: number) => {
+    await PostApi.fetchAddPostNegative(postId);
+    return "Success";
+  }
+);
+
+export const fetchRemovePostNegative = createAsyncThunk(
+  "post/fetchRemovePostNegative",
+  async (postId: number) => {
+    await PostApi.fetchRemovePostNegative(postId);
+    return "Success";
+  }
+);
+
+export const fetchPositiveNegative = createAsyncThunk(
+  "post/fetchRemovePostNegative",
+  async (postId: number) => {
+    const response = await PostApi.fetchPositiveNegative(postId);
+    return {
+      positiveCount: parseInt(response.positiveCount, 10),
+      negativeCount: parseInt(response.negativeCount, 10),
+    };
+  }
+);
+
 const hydrate = createAction<RootState>(HYDRATE);
 
 const postSlice = createSlice({
@@ -139,6 +192,9 @@ const postSlice = createSlice({
     });
     builder.addCase(fetchCreatePost.fulfilled, (state) => {
       state.isCreated = true;
+    });
+    builder.addCase(fetchPositiveNegative.fulfilled, (state, action) => {
+      state.positiveNegative = action.payload;
     });
   },
 });

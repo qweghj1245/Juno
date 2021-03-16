@@ -94,6 +94,11 @@ export interface FetchCreatePost {
   tags: number[];
 }
 
+export interface FetchPositiveNegative {
+  positiveCount: string;
+  negativeCount: string;
+}
+
 const apiClient = new CoreApi({ apiVersion: "v1" });
 
 export interface PostAPI {
@@ -103,6 +108,11 @@ export interface PostAPI {
   fetchComments: (postId: number) => Promise<CommentsResults>;
   fetchRelationPosts: (postId: number) => Promise<RelationPost[]>;
   fetchCreatePost: (payload: FetchCreatePost) => Promise<void>;
+  fetchAddPostPositive: (postId: number) => Promise<void>;
+  fetchRemovePostPositive: (postId: number) => Promise<void>;
+  fetchAddPostNegative: (postId: number) => Promise<void>;
+  fetchRemovePostNegative: (postId: number) => Promise<void>;
+  fetchPositiveNegative: (postId: number) => Promise<FetchPositiveNegative>;
 }
 
 const PostApi: PostAPI = {
@@ -158,6 +168,22 @@ const PostApi: PostAPI = {
       tags: payload.tags,
     };
     await apiClient.post("/post/", actionPayload);
+  },
+  fetchAddPostPositive: async (postId) => {
+    await apiClient.post(`/post-positive/${postId}/`, {});
+  },
+  fetchRemovePostPositive: async (postId) => {
+    await apiClient.delete(`/post-positive`, postId);
+  },
+  fetchAddPostNegative: async (postId) => {
+    await apiClient.post(`/post-negative/${postId}/`, {});
+  },
+  fetchRemovePostNegative: async (postId) => {
+    await apiClient.delete(`/post-negative`, postId);
+  },
+  fetchPositiveNegative: async (postId) => {
+    const response = await apiClient.get(`/positive-negative/${postId}/`);
+    return convertToCamelCase(response.data.result);
   },
 };
 

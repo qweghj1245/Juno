@@ -49,6 +49,6 @@ export default class CoreApi {
   };
 
   public delete = (url: string, id: number) => {
-    return this.axiosInstance.delete(`${url}/${id}`);
+    return this.axiosInstance.delete(`${url}/${id}/`);
   };
 }

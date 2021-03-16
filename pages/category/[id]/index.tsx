@@ -21,8 +21,6 @@ const CategoryPosts: FC<Props> = (props) => {
   const dispatch = useDispatch();
   const { categoryPostMap, postTags } = useSelector(postState);
 
-  console.log(categoryPostMap);
-
   const onHotClick = () => {
     dispatch(
       fetchCategoryPosts({
