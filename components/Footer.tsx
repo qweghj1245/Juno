@@ -57,7 +57,7 @@ export default function Footer() {
           />
         </div>
       </Link>
-      <Link href="/login">
+      {/* <Link href="/login">
         <div>
           <CustomImage
             src={
@@ -68,7 +68,7 @@ export default function Footer() {
             alt="notice"
           />
         </div>
-      </Link>
+      </Link> */}
       <Link href="/member">
         <div>
           <CustomImage

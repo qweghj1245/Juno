@@ -1,12 +1,16 @@
 import {
   fetchComments,
+  fetchPositiveNegative,
+  fetchPositiveNegativeStatus,
   fetchPost,
   fetchPostTags,
   fetchRelationPosts,
+  postState,
 } from "@redux/postSlice";
 import { wrapper } from "@redux/store";
 import { Comment, PostTagsMap, RelationPost, SinglePost } from "api/PostApi";
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import Author from "../Author";
 import Content from "../Content";
@@ -27,6 +31,14 @@ type Props = {
 const Post: FC<Props> = (props) => {
   const { post, postTags, comments, relationPosts } = props;
 
+  const dispatch = useDispatch();
+  const { positiveNegative, positiveNegativeStatus } = useSelector(postState);
+
+  useEffect(() => {
+    dispatch(fetchPositiveNegative(post.id));
+    dispatch(fetchPositiveNegativeStatus(post.id));
+  }, [dispatch]);
+
   return (
     <Wrapper>
       <Author
@@ -40,7 +52,11 @@ const Post: FC<Props> = (props) => {
         title={post.title}
         content={post.content}
       />
-      <Evaluation />
+      <Evaluation
+        postId={post.id}
+        positiveNegative={positiveNegative}
+        positiveNegativeStatus={positiveNegativeStatus}
+      />
       <SectionContent sectionType={SectionType.COMMENT} comments={comments} />
       <SectionContent
         sectionType={SectionType.RELATION}

@@ -23,6 +23,10 @@ interface IState {
     positiveCount: number;
     negativeCount: number;
   };
+  positiveNegativeStatus: {
+    postPositive: boolean;
+    postNegative: boolean;
+  };
 }
 
 const initialState: IState = {
@@ -42,6 +46,10 @@ const initialState: IState = {
   positiveNegative: {
     positiveCount: 0,
     negativeCount: 0,
+  },
+  positiveNegativeStatus: {
+    postPositive: false,
+    postNegative: false,
   },
 };
 
@@ -110,8 +118,6 @@ export const fetchCreatePost = createAsyncThunk(
   }
 );
 
-//
-
 export const fetchAddPostPositive = createAsyncThunk(
   "post/fetchAddPostPositive",
   async (postId: number) => {
@@ -145,13 +151,18 @@ export const fetchRemovePostNegative = createAsyncThunk(
 );
 
 export const fetchPositiveNegative = createAsyncThunk(
-  "post/fetchRemovePostNegative",
+  "post/fetchPositiveNegative",
   async (postId: number) => {
     const response = await PostApi.fetchPositiveNegative(postId);
-    return {
-      positiveCount: parseInt(response.positiveCount, 10),
-      negativeCount: parseInt(response.negativeCount, 10),
-    };
+    return response;
+  }
+);
+
+export const fetchPositiveNegativeStatus = createAsyncThunk(
+  "post/fetchPositiveNegativeStatus",
+  async (postId: number) => {
+    const response = await PostApi.fetchPositiveNegativeStatus(postId);
+    return response;
   }
 );
 
@@ -195,6 +206,9 @@ const postSlice = createSlice({
     });
     builder.addCase(fetchPositiveNegative.fulfilled, (state, action) => {
       state.positiveNegative = action.payload;
+    });
+    builder.addCase(fetchPositiveNegativeStatus.fulfilled, (state, action) => {
+      state.positiveNegativeStatus = action.payload;
     });
   },
 });
