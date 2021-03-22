@@ -14,6 +14,7 @@ export interface FetchPostsQuery {
   search?: string;
   query?: QueryStatus;
   categoryId?: number;
+  tagId?: number;
 }
 
 export interface GroupPost {
@@ -139,6 +140,7 @@ const PostApi: PostAPI = {
       search: query?.search,
       query: query?.query,
       category_id: query?.categoryId,
+      tag_id: query?.tagId,
     });
     return convertToCamelCase(response.data.result);
   },

@@ -25,6 +25,7 @@ const apiClient = new CoreApi({ apiVersion: "v1" });
 export interface TagAPI {
   fetchTags: (query: FetchTagsQuery) => Promise<Tag[]>;
   fetchCreateTag: (payload: FetchCreateTagsPayload) => Promise<NewTag>;
+  fetchTag: (tagId: number) => Promise<Tag>;
 }
 
 const TagApi: TagAPI = {
@@ -38,6 +39,10 @@ const TagApi: TagAPI = {
     const response = await apiClient.post("/tag/", {
       name: payload.name,
     });
+    return convertToCamelCase(response.data.result);
+  },
+  fetchTag: async (tagId) => {
+    const response = await apiClient.get(`/tag/${tagId}/`);
     return convertToCamelCase(response.data.result);
   },
 };

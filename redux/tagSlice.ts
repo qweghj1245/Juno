@@ -12,12 +12,14 @@ interface IState {
   searchTags: Tag[];
   newTags: NewTag[];
   selectTags: NewTag[];
+  tagInfo: Tag | null;
 }
 
 const initialState: IState = {
   searchTags: [],
   newTags: [],
   selectTags: [],
+  tagInfo: null,
 };
 
 export const fetchTags = createAsyncThunk(
@@ -34,6 +36,14 @@ export const fetchCreateTag = createAsyncThunk(
     const response = await TagApi.fetchCreateTag(payload);
     const { tag } = thunkApi.getState() as RootState;
     return [...tag.newTags, response];
+  }
+);
+
+export const fetchTag = createAsyncThunk(
+  "tag/fetchTag",
+  async (tagId: number) => {
+    const response = await TagApi.fetchTag(tagId);
+    return response;
   }
 );
 
@@ -65,6 +75,9 @@ const tagSlice = createSlice({
     });
     builder.addCase(fetchCreateTag.fulfilled, (state, action) => {
       state.newTags = action.payload;
+    });
+    builder.addCase(fetchTag.fulfilled, (state, action) => {
+      state.tagInfo = action.payload;
     });
   },
 });

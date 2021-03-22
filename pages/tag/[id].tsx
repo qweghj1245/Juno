@@ -1,7 +1,12 @@
 import PostCard from "@components/PostCard";
+import { fetchPosts, postState } from "@redux/postSlice";
+import { wrapper } from "@redux/store";
+import { fetchTag, tagState } from "@redux/tagSlice";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
+import { QueryStatus } from "api/PostApi";
 import React from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 
 const Wrapper = styled(Row)`
@@ -35,23 +40,42 @@ const MentionTitle = styled.h2`
 `;
 
 const CardWrapper = styled.div`
-  padding: 0 16px;
+  padding: 0 16px 52px 16px;
 `;
 
-export default function Tag() {
+const Tag = () => {
+  const { postsResult, postTags } = useSelector(postState);
+  const { tagInfo } = useSelector(tagState);
+
   return (
     <>
       <Wrapper>
-        <TagTitle>#麥當勞</TagTitle>
-        <TagPostCount>共1029篇文章</TagPostCount>
-        <Follow>追蹤</Follow>
+        <TagTitle>{`#${tagInfo?.name}`}</TagTitle>
+        <TagPostCount>{`共${tagInfo?.count}篇文章`}</TagPostCount>
+        {/* <Follow>追蹤</Follow> */}
       </Wrapper>
       <MentionTitle>提及的文章</MentionTitle>
       <CardWrapper>
-        <PostCard />
-        <PostCard />
-        <PostCard />
+        {postsResult.posts.map((post) => (
+          <PostCard key={post.id} post={post} postTags={postTags} />
+        ))}
       </CardWrapper>
     </>
   );
-}
+};
+
+export const getServerSideProps = wrapper.getServerSideProps(async (ctx) => {
+  try {
+    await ctx.store.dispatch(
+      fetchPosts({ tagId: ctx.query.id, query: QueryStatus.HOT })
+    );
+  } catch (error) {}
+
+  try {
+    await ctx.store.dispatch(fetchTag(ctx.query.id));
+  } catch (error) {}
+
+  return { props: {} };
+});
+
+export default Tag;

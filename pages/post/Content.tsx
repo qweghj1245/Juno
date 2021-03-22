@@ -1,6 +1,7 @@
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import { PostTags } from "api/PostApi";
+import Link from "next/link";
 import React from "react";
 import styled from "styled-components";
 
@@ -49,9 +50,11 @@ export default function Content(props: Props) {
         {tags && <CategoryDot>・</CategoryDot>}
         {tags &&
           tags.map((tag, idx, arr) => (
-            <Tag key={tag.tagId}>
-              {`${tag.name}${idx !== arr.length - 1 ? "・" : ""}`}
-            </Tag>
+            <Link href={`/tag/${tag.tagId}`}>
+              <Tag key={tag.tagId}>
+                {`${tag.name}${idx !== arr.length - 1 ? "・" : ""}`}
+              </Tag>
+            </Link>
           ))}
       </Row>
       <PostTitle>{title}</PostTitle>
