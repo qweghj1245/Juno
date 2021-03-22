@@ -1,5 +1,6 @@
 import { convertToCamelCase } from "utils/convertToCamelCase";
 import CoreApi from "./CoreApi";
+import { GroupPost } from "./PostApi";
 
 export enum MemberRank {
   ADMIN = 100,
@@ -36,6 +37,7 @@ export interface MemberAggregate {
 export interface MemberAPI {
   fetchMemberInfo: (requestHeader?: any) => Promise<MemberProfile>;
   fetchMemberAggregate: () => Promise<MemberAggregate>;
+  fetchMemberPost: () => Promise<GroupPost[]>;
 }
 
 const apiClient = new CoreApi({ apiVersion: "" });
@@ -47,6 +49,10 @@ const MemberApi: MemberAPI = {
   },
   fetchMemberAggregate: async () => {
     const response = await apiClient.get("/member/aggregate/");
+    return convertToCamelCase(response.data.result);
+  },
+  fetchMemberPost: async () => {
+    const response = await apiClient.get("/member/post/");
     return convertToCamelCase(response.data.result);
   },
 };

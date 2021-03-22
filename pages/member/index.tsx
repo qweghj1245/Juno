@@ -1,4 +1,9 @@
-import { fetchMemberAggregate, memberState } from "@redux/memberSlice";
+import PostCard from "@components/PostCard";
+import {
+  fetchMemberAggregate,
+  fetchMemberPost,
+  memberState,
+} from "@redux/memberSlice";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
@@ -89,15 +94,18 @@ export default function Member() {
   const router = useRouter();
 
   const dispatch = useDispatch();
-  const { memberProile, memberAggregate } = useSelector(memberState);
+  const { memberProile, memberAggregate, memberPost, postTags } = useSelector(
+    memberState
+  );
 
   useEffect(() => {
     if (memberProile) {
       dispatch(fetchMemberAggregate());
+      dispatch(fetchMemberPost({}));
     } else {
       router.push("/login");
     }
-  }, []);
+  }, [memberProile]);
 
   return (
     <>
@@ -132,13 +140,11 @@ export default function Member() {
           options={options}
         />
       </Selector>
-      {/* <CardWrapper>
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-        <PostCard />
-      </CardWrapper> */}
+      <CardWrapper>
+        {memberPost?.map((post) => (
+          <PostCard key={post.id} post={post} postTags={postTags} />
+        ))}
+      </CardWrapper>
     </>
   );
 }

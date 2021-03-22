@@ -1,3 +1,4 @@
+import PostApi, { GroupPost, PostTagsMap } from "@api/PostApi";
 import { createAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AuthApi from "api/AuthApi";
 import MemberApi, { MemberAggregate, MemberProfile } from "api/MemberApi";
@@ -7,11 +8,15 @@ import { RootState } from "./rootReducer";
 interface IState {
   memberProile: MemberProfile | null;
   memberAggregate: MemberAggregate | null;
+  memberPost: GroupPost[];
+  postTags: PostTagsMap;
 }
 
 const initialState: IState = {
   memberProile: null,
   memberAggregate: null,
+  memberPost: [],
+  postTags: {},
 };
 
 export const fetchGoogleSignIn = createAsyncThunk(
@@ -39,6 +44,24 @@ export const fetchMemberAggregate = createAsyncThunk(
   }
 );
 
+export const fetchMemberPost = createAsyncThunk(
+  "member/fetchMemberPost",
+  async (_: any, thunkApi) => {
+    const response = await MemberApi.fetchMemberPost();
+    const postIds = response.map((item) => item.id);
+    await thunkApi.dispatch(fetchPostTags(postIds));
+    return response;
+  }
+);
+
+export const fetchPostTags = createAsyncThunk(
+  "member/fetchPostTags",
+  async (postIds: number[]) => {
+    const response = await PostApi.fetchPostTags(postIds);
+    return response;
+  }
+);
+
 const hydrate = createAction<RootState>(HYDRATE);
 
 const memberSlice = createSlice({
@@ -60,6 +83,12 @@ const memberSlice = createSlice({
     });
     builder.addCase(fetchMemberAggregate.fulfilled, (state, action) => {
       state.memberAggregate = action.payload;
+    });
+    builder.addCase(fetchMemberPost.fulfilled, (state, action) => {
+      state.memberPost = action.payload;
+    });
+    builder.addCase(fetchPostTags.fulfilled, (state, action) => {
+      state.postTags = action.payload;
     });
   },
 });
