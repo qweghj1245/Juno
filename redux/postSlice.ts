@@ -2,6 +2,7 @@ import { createAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import PostApi, {
   CommentsResults,
   FetchCreatePost,
+  FetchPositiveNegativeStatusPayload,
   FetchPostsQuery,
   PostsResults,
   PostTagsMap,
@@ -162,6 +163,24 @@ export const fetchPositiveNegativeStatus = createAsyncThunk(
   "post/fetchPositiveNegativeStatus",
   async (postId: number) => {
     const response = await PostApi.fetchPositiveNegativeStatus(postId);
+    return response;
+  }
+);
+
+export const fetchPatchPositiveNegativeStatus = createAsyncThunk(
+  "post/fetchPatchPositiveNegativeStatus",
+  async (
+    config: FetchPositiveNegativeStatusPayload & {
+      postId: number;
+    }
+  ) => {
+    const response = await PostApi.fetchPatchPositiveNegativeStatus(
+      config.postId,
+      {
+        postPositive: config.postPositive,
+        postNegative: config.postNegative,
+      }
+    );
     return response;
   }
 );

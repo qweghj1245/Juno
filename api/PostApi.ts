@@ -104,6 +104,11 @@ export interface FetchPositiveNegativeStatus {
   postNegative: boolean;
 }
 
+export interface FetchPositiveNegativeStatusPayload {
+  postPositive: boolean;
+  postNegative: boolean;
+}
+
 const apiClient = new CoreApi({ apiVersion: "v1" });
 
 export interface PostAPI {
@@ -121,6 +126,10 @@ export interface PostAPI {
   fetchPositiveNegativeStatus: (
     postId: number
   ) => Promise<FetchPositiveNegativeStatus>;
+  fetchPatchPositiveNegativeStatus: (
+    postId: number,
+    payload: FetchPositiveNegativeStatusPayload
+  ) => Promise<void>;
 }
 
 const PostApi: PostAPI = {
@@ -201,6 +210,12 @@ const PostApi: PostAPI = {
       `/positive-negative-status/${postId}/`
     );
     return convertToCamelCase(response.data.result);
+  },
+  fetchPatchPositiveNegativeStatus: async (postId, payload) => {
+    await apiClient.patch(`/positive-negative-status/${postId}/`, {
+      post_positive: payload.postPositive,
+      post_negative: payload.postNegative,
+    });
   },
 };
 

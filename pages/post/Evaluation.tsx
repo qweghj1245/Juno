@@ -5,6 +5,7 @@ import {
 import {
   fetchAddPostNegative,
   fetchAddPostPositive,
+  fetchPatchPositiveNegativeStatus,
   fetchRemovePostNegative,
   fetchRemovePostPositive,
 } from "@redux/postSlice";
@@ -60,26 +61,54 @@ export default function Evaluation(props: Props) {
   const [negativeCount, setNegativeCount] = useState<number>(0);
 
   const fetchSetPositive = () => {
-    if (positive) {
-      setPositive(false);
-      setPositiveCount(positiveCount - 1);
-      dispatch(fetchRemovePostPositive(postId));
-    } else {
+    if (negative) {
       setPositive(true);
+      setNegative(false);
       setPositiveCount(positiveCount + 1);
-      dispatch(fetchAddPostPositive(postId));
+      setNegativeCount(negativeCount - 1);
+      dispatch(
+        fetchPatchPositiveNegativeStatus({
+          postId,
+          postPositive: true,
+          postNegative: false,
+        })
+      );
+    } else {
+      if (positive) {
+        setPositive(false);
+        setPositiveCount(positiveCount - 1);
+        dispatch(fetchRemovePostPositive(postId));
+      } else {
+        setPositive(true);
+        setPositiveCount(positiveCount + 1);
+        dispatch(fetchAddPostPositive(postId));
+      }
     }
   };
 
   const fetchSetNegative = () => {
-    if (negative) {
-      setNegative(false);
-      setNegativeCount(negativeCount - 1);
-      dispatch(fetchRemovePostNegative(postId));
-    } else {
+    if (positive) {
+      setPositive(false);
       setNegative(true);
+      setPositiveCount(positiveCount - 1);
       setNegativeCount(negativeCount + 1);
-      dispatch(fetchAddPostNegative(postId));
+      dispatch(
+        fetchPatchPositiveNegativeStatus({
+          postId,
+          postPositive: false,
+          postNegative: true,
+        })
+      );
+    } else {
+      if (negative) {
+        setNegative(false);
+        setNegativeCount(negativeCount - 1);
+        dispatch(fetchRemovePostNegative(postId));
+      } else {
+        setNegative(true);
+        setNegativeCount(negativeCount + 1);
+        dispatch(fetchAddPostNegative(postId));
+      }
     }
   };
 
