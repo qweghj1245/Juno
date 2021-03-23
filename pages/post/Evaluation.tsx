@@ -3,8 +3,10 @@ import {
   FetchPositiveNegativeStatus,
 } from "@api/PostApi";
 import {
+  fetchAddCollect,
   fetchAddPostNegative,
   fetchAddPostPositive,
+  fetchDeleteCollect,
   fetchPatchPositiveNegativeStatus,
   fetchRemovePostNegative,
   fetchRemovePostPositive,
@@ -21,12 +23,12 @@ const Wrapper = styled(Row)`
   border-bottom: solid 1px ${({ theme: { color } }) => color.grey100};
 `;
 
-const Scope = styled(Row)<{ isActive: boolean }>`
+const Scope = styled(Row)<{ isActive: boolean; noMargin?: boolean }>`
   justify-content: space-between;
   min-width: 78px;
   border-radius: 20px;
-  margin-right: 12px;
   padding: 8px 14px;
+  margin-right: ${({ noMargin }) => (noMargin ? "0px" : "12px")};
   border: solid 1px
     ${({ theme: { color }, isActive }) =>
       isActive ? color.grey500 : color.grey100};
@@ -43,22 +45,43 @@ const CustomImage = styled.img`
   object-fit: contain;
 `;
 
+const Collect = styled.span<{ isActive: boolean }>`
+  margin-left: 4px;
+  color: ${({ theme: { color }, isActive }) =>
+    isActive ? color.grey900 : color.grey500};
+  ${fontStyle("14px", "20px")};
+`;
+
 type Props = {
   postId: number;
   positiveNegative: FetchPositiveNegative;
   positiveNegativeStatus: FetchPositiveNegativeStatus;
+  isCollect: boolean | null;
+  collectId: number | null;
+  isStatusDone: boolean;
+  isCountDone: boolean;
 };
 
 export default function Evaluation(props: Props) {
-  const { postId, positiveNegative, positiveNegativeStatus } = props;
+  const {
+    postId,
+    positiveNegative,
+    positiveNegativeStatus,
+    isCollect,
+    collectId,
+    isStatusDone,
+    isCountDone,
+  } = props;
 
   const dispatch = useDispatch();
 
-  const [init, setInit] = useState<boolean>(false);
+  const [statusInit, setStatusInit] = useState<boolean>(false);
+  const [collectInit, setCollectInit] = useState<boolean>(false);
   const [positive, setPositive] = useState<boolean>(false);
   const [negative, setNegative] = useState<boolean>(false);
   const [positiveCount, setPositiveCount] = useState<number>(0);
   const [negativeCount, setNegativeCount] = useState<number>(0);
+  const [isCollectPost, setIsCollectPost] = useState<boolean>(false);
 
   const fetchSetPositive = () => {
     if (negative) {
@@ -112,43 +135,76 @@ export default function Evaluation(props: Props) {
     }
   };
 
-  useEffect(() => {
-    if (!init) {
-      if (positiveNegativeStatus.postPositive) {
-        setPositive(true);
-        setPositiveCount(positiveNegative.positiveCount);
-        setInit(true);
-      } else if (positiveNegativeStatus.postNegative) {
-        setNegative(true);
-        setNegativeCount(positiveNegative.negativeCount);
-        setInit(true);
-      }
+  const fetchSetCollect = () => {
+    if (isCollectPost) {
+      setIsCollectPost(false);
+      dispatch(fetchDeleteCollect(collectId!));
+    } else {
+      setIsCollectPost(true);
+      dispatch(fetchAddCollect(postId));
     }
-  }, [init, positiveNegativeStatus]);
+  };
+
+  useEffect(() => {
+    if (!statusInit && isStatusDone && isCountDone) {
+      setPositive(positiveNegativeStatus.postPositive);
+      setPositiveCount(positiveNegative.positiveCount);
+      setNegative(positiveNegativeStatus.postNegative);
+      setNegativeCount(positiveNegative.negativeCount);
+      setStatusInit(true);
+    }
+  }, [statusInit, positiveNegativeStatus, isStatusDone, isCountDone]);
+
+  useEffect(() => {
+    if (!collectInit) {
+      setIsCollectPost(isCollect === null ? false : true);
+      setCollectInit(true);
+    }
+  }, [collectInit, isCollect]);
+
+  useEffect(() => {
+    if (postId) {
+      setCollectInit(false);
+      setStatusInit(false);
+    }
+  }, [postId]);
 
   return (
-    <Wrapper>
-      <Scope isActive={positive} onClick={fetchSetPositive}>
+    <Wrapper justifyContent="space-between">
+      <Row>
+        <Scope isActive={positive} onClick={fetchSetPositive}>
+          <CustomImage
+            src={
+              positive
+                ? "/static/lnr-thumbs-up@3x.png"
+                : "/static/icon_thumbsup_gray@3x.png"
+            }
+            alt="thumbs up"
+          />
+          <Count isActive={positive}>{positiveCount}</Count>
+        </Scope>
+        <Scope isActive={negative} onClick={fetchSetNegative}>
+          <CustomImage
+            src={
+              negative
+                ? "/static/lnr-thumbs-down@3x.png"
+                : "/static/icon_thumbsdown_gray@3x.png"
+            }
+            alt="thumbs down"
+          />
+          <Count isActive={negative}>{negativeCount}</Count>
+        </Scope>
+      </Row>
+      <Scope noMargin isActive={isCollectPost} onClick={fetchSetCollect}>
         <CustomImage
           src={
-            positive
-              ? "/static/lnr-thumbs-up@3x.png"
-              : "/static/icon_thumbsup_gray@3x.png"
+            isCollectPost
+              ? "/static/lnr-star-l@3x.png"
+              : "/static/lnr-star@3x.png"
           }
-          alt="thumbs up"
+          alt="collect"
         />
-        <Count isActive={positive}>{positiveCount}</Count>
-      </Scope>
-      <Scope isActive={negative} onClick={fetchSetNegative}>
-        <CustomImage
-          src={
-            negative
-              ? "/static/lnr-thumbs-down@3x.png"
-              : "/static/icon_thumbsdown_gray@3x.png"
-          }
-          alt="thumbs down"
-        />
-        <Count isActive={negative}>{negativeCount}</Count>
+        <Collect isActive={isCollectPost}>收藏</Collect>
       </Scope>
     </Wrapper>
   );

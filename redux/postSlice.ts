@@ -1,3 +1,4 @@
+import CollectApi from "@api/CollectApi";
 import { createAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import PostApi, {
   CommentsResults,
@@ -28,6 +29,8 @@ interface IState {
     postPositive: boolean;
     postNegative: boolean;
   };
+  isStatusDone: boolean;
+  isCountDone: boolean;
 }
 
 const initialState: IState = {
@@ -52,6 +55,8 @@ const initialState: IState = {
     postPositive: false,
     postNegative: false,
   },
+  isStatusDone: false,
+  isCountDone: false,
 };
 
 export const fetchPosts = createAsyncThunk(
@@ -185,6 +190,26 @@ export const fetchPatchPositiveNegativeStatus = createAsyncThunk(
   }
 );
 
+export const fetchAddCollect = createAsyncThunk(
+  "post/fetchAddCollect",
+  async (postId: number, thunkApi) => {
+    await CollectApi.fetchAddCollect(postId);
+    const { post } = thunkApi.getState() as RootState;
+    await thunkApi.dispatch(fetchPost(post.post!.id));
+    return "Success";
+  }
+);
+
+export const fetchDeleteCollect = createAsyncThunk(
+  "post/fetchDeleteCollect",
+  async (collectId: number, thunkApi) => {
+    await CollectApi.fetchDeleteCollect(collectId);
+    const { post } = thunkApi.getState() as RootState;
+    await thunkApi.dispatch(fetchPost(post.post!.id));
+    return "Success";
+  }
+);
+
 const hydrate = createAction<RootState>(HYDRATE);
 
 const postSlice = createSlice({
@@ -213,6 +238,8 @@ const postSlice = createSlice({
     });
     builder.addCase(fetchPost.fulfilled, (state, action) => {
       state.post = action.payload;
+      state.isStatusDone = false;
+      state.isCountDone = false;
     });
     builder.addCase(fetchComments.fulfilled, (state, action) => {
       state.commentsResult = action.payload;
@@ -228,6 +255,8 @@ const postSlice = createSlice({
     });
     builder.addCase(fetchPositiveNegativeStatus.fulfilled, (state, action) => {
       state.positiveNegativeStatus = action.payload;
+      state.isStatusDone = true;
+      state.isCountDone = true;
     });
   },
 });

@@ -32,12 +32,17 @@ const Post: FC<Props> = (props) => {
   const { post, postTags, comments, relationPosts } = props;
 
   const dispatch = useDispatch();
-  const { positiveNegative, positiveNegativeStatus } = useSelector(postState);
+  const {
+    positiveNegative,
+    positiveNegativeStatus,
+    isStatusDone,
+    isCountDone,
+  } = useSelector(postState);
 
   useEffect(() => {
     dispatch(fetchPositiveNegative(post.id));
     dispatch(fetchPositiveNegativeStatus(post.id));
-  }, [dispatch]);
+  }, [dispatch, post.id]);
 
   return (
     <Wrapper>
@@ -56,6 +61,10 @@ const Post: FC<Props> = (props) => {
         postId={post.id}
         positiveNegative={positiveNegative}
         positiveNegativeStatus={positiveNegativeStatus}
+        isStatusDone={isStatusDone}
+        isCountDone={isCountDone}
+        isCollect={post.isCollect}
+        collectId={post.collectId}
       />
       <SectionContent sectionType={SectionType.COMMENT} comments={comments} />
       <SectionContent
