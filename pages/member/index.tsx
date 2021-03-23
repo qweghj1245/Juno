@@ -1,6 +1,7 @@
 import PostCard from "@components/PostCard";
 import {
   fetchMemberAggregate,
+  fetchMemberCollects,
   fetchMemberPost,
   memberState,
 } from "@redux/memberSlice";
@@ -8,7 +9,7 @@ import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
 import { useRouter } from "next/router";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 import styled from "styled-components";
@@ -74,6 +75,8 @@ const CustomImage = styled.img`
   object-fit: contain;
 `;
 
+type Tab = "owner" | "collect";
+
 const SelectStyle = {
   control: () => ({
     background: "transparent",
@@ -94,14 +97,21 @@ export default function Member() {
   const router = useRouter();
 
   const dispatch = useDispatch();
-  const { memberProile, memberAggregate, memberPost, postTags } = useSelector(
-    memberState
-  );
+  const {
+    memberProile,
+    memberAggregate,
+    memberPost,
+    postTags,
+    memberCollects,
+  } = useSelector(memberState);
+
+  const [tab, setTab] = useState<Tab>("owner");
 
   useEffect(() => {
     if (memberProile) {
       dispatch(fetchMemberAggregate());
       dispatch(fetchMemberPost({}));
+      dispatch(fetchMemberCollects({}));
     } else {
       router.push("/login");
     }
@@ -138,12 +148,18 @@ export default function Member() {
           defaultValue={{ value: "owner", label: "發表的文章" }}
           styles={SelectStyle}
           options={options}
+          onChange={(option) => setTab(option!.value as Tab)}
         />
       </Selector>
       <CardWrapper>
-        {memberPost?.map((post) => (
-          <PostCard key={post.id} post={post} postTags={postTags} />
-        ))}
+        {tab === "owner" &&
+          memberPost.map((post) => (
+            <PostCard key={post.id} post={post} postTags={postTags} />
+          ))}
+        {tab === "collect" &&
+          memberCollects.map((post) => (
+            <PostCard key={post.id} post={post} postTags={postTags} />
+          ))}
       </CardWrapper>
     </>
   );

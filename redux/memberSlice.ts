@@ -9,6 +9,7 @@ interface IState {
   memberProile: MemberProfile | null;
   memberAggregate: MemberAggregate | null;
   memberPost: GroupPost[];
+  memberCollects: GroupPost[];
   postTags: PostTagsMap;
 }
 
@@ -16,6 +17,7 @@ const initialState: IState = {
   memberProile: null,
   memberAggregate: null,
   memberPost: [],
+  memberCollects: [],
   postTags: {},
 };
 
@@ -48,6 +50,16 @@ export const fetchMemberPost = createAsyncThunk(
   "member/fetchMemberPost",
   async (_: any, thunkApi) => {
     const response = await MemberApi.fetchMemberPost();
+    const postIds = response.map((item) => item.id);
+    await thunkApi.dispatch(fetchPostTags(postIds));
+    return response;
+  }
+);
+
+export const fetchMemberCollects = createAsyncThunk(
+  "member/fetchMemberCollects",
+  async (_: any, thunkApi) => {
+    const response = await MemberApi.fetchMemberCollects();
     const postIds = response.map((item) => item.id);
     await thunkApi.dispatch(fetchPostTags(postIds));
     return response;
@@ -87,8 +99,11 @@ const memberSlice = createSlice({
     builder.addCase(fetchMemberPost.fulfilled, (state, action) => {
       state.memberPost = action.payload;
     });
+    builder.addCase(fetchMemberCollects.fulfilled, (state, action) => {
+      state.memberCollects = action.payload;
+    });
     builder.addCase(fetchPostTags.fulfilled, (state, action) => {
-      state.postTags = action.payload;
+      state.postTags = { ...state.postTags, ...action.payload };
     });
   },
 });

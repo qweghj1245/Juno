@@ -38,6 +38,7 @@ export interface MemberAPI {
   fetchMemberInfo: (requestHeader?: any) => Promise<MemberProfile>;
   fetchMemberAggregate: () => Promise<MemberAggregate>;
   fetchMemberPost: () => Promise<GroupPost[]>;
+  fetchMemberCollects: () => Promise<GroupPost[]>;
 }
 
 const apiClient = new CoreApi({ apiVersion: "" });
@@ -53,6 +54,10 @@ const MemberApi: MemberAPI = {
   },
   fetchMemberPost: async () => {
     const response = await apiClient.get("/member/post/");
+    return convertToCamelCase(response.data.result);
+  },
+  fetchMemberCollects: async () => {
+    const response = await apiClient.get("/member/collects/");
     return convertToCamelCase(response.data.result);
   },
 };
