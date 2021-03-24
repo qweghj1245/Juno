@@ -1,8 +1,13 @@
 import PostCard from "@components/PostCard";
 import Tabs from "@pages/home/Tabs";
-import { fetchCategoryPosts, postState } from "@redux/postSlice";
+import {
+  fetchCategoryPosts,
+  postState,
+  setCurrentCategory,
+} from "@redux/postSlice";
 import { wrapper } from "@redux/store";
 import { QueryStatus } from "api/PostApi";
+import { useRouter } from "next/router";
 import React, { FC } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
@@ -12,20 +17,23 @@ const Wrapper = styled.main`
 `;
 
 type Props = {
-  categoryId: number;
+  categoryId: string;
 };
 
 const CategoryPosts: FC<Props> = (props) => {
   const { categoryId } = props;
+  const parseCategoryId = parseInt(categoryId, 10);
 
   const dispatch = useDispatch();
   const { categoryPostMap, postTags } = useSelector(postState);
+
+  const router = useRouter();
 
   const onHotClick = () => {
     dispatch(
       fetchCategoryPosts({
         query: QueryStatus.HOT,
-        categoryId,
+        categoryId: parseCategoryId,
       })
     );
   };
@@ -34,16 +42,29 @@ const CategoryPosts: FC<Props> = (props) => {
     dispatch(
       fetchCategoryPosts({
         query: QueryStatus.NEW,
-        categoryId,
+        categoryId: parseCategoryId,
       })
     );
   };
 
+  const postEditAction = () => {
+    dispatch(setCurrentCategory(parseCategoryId));
+    router.push({
+      pathname: "/post/edit",
+    });
+  };
+
   return (
     <>
-      <Tabs onHotClick={onHotClick} onNewClick={onNewClick} />
+      <Tabs
+        postIcon
+        direction="left"
+        onHotClick={onHotClick}
+        onNewClick={onNewClick}
+        onPost={postEditAction}
+      />
       <Wrapper>
-        {categoryPostMap[categoryId]?.posts.map((post) => (
+        {categoryPostMap[parseCategoryId]?.posts.map((post) => (
           <PostCard key={post.id} post={post} postTags={postTags} />
         ))}
       </Wrapper>

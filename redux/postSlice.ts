@@ -31,6 +31,7 @@ interface IState {
   };
   isStatusDone: boolean;
   isCountDone: boolean;
+  currentCategory: number | null;
 }
 
 const initialState: IState = {
@@ -57,6 +58,7 @@ const initialState: IState = {
   },
   isStatusDone: false,
   isCountDone: false,
+  currentCategory: null,
 };
 
 export const fetchPosts = createAsyncThunk(
@@ -219,6 +221,9 @@ const postSlice = createSlice({
     setIsNotCreate: (state) => {
       state.isCreated = false;
     },
+    setCurrentCategory: (state, action) => {
+      state.currentCategory = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(hydrate, (state, action) => {
@@ -262,5 +267,5 @@ const postSlice = createSlice({
 });
 
 export const postState = (state: RootState) => state.post;
-export const { setIsNotCreate } = postSlice.actions;
+export const { setIsNotCreate, setCurrentCategory } = postSlice.actions;
 export default postSlice.reducer;

@@ -75,7 +75,7 @@ export default function PostEditor() {
   const router = useRouter();
 
   const dispatch = useDispatch();
-  const { isCreated } = useSelector(postState);
+  const { isCreated, currentCategory } = useSelector(postState);
   const { selectTags } = useSelector(tagState);
 
   const [init, setInit] = useState<boolean>(false);
@@ -119,7 +119,7 @@ export default function PostEditor() {
       fetchCreatePost({
         title,
         content: draftjsToHTML,
-        categoryId: 1,
+        categoryId: currentCategory!,
         tags: selectTags.map((item) => item.id),
       })
     );
@@ -135,6 +135,12 @@ export default function PostEditor() {
       router.push("/");
     }
   }, [isCreated]);
+
+  useEffect(() => {
+    if (currentCategory === null) {
+      router.push("/");
+    }
+  }, []);
 
   return (
     <Wrapper>

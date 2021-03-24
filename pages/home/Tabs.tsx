@@ -1,4 +1,5 @@
 import fontStyle from "@styles/fontStyle";
+import sizeStyle from "@styles/sizeStyle";
 import React, { useState } from "react";
 import styled from "styled-components";
 
@@ -8,11 +9,20 @@ const Wrapper = styled.div`
   border-bottom: solid 2px ${({ theme: { color } }) => color.grey500};
 `;
 
-const Center = styled.div`
+const Center = styled.div<{ direction: string }>`
   display: flex;
   justify-content: center;
   position: absolute;
-  left: 50%;
+  left: ${({ direction }) => {
+    switch (direction) {
+      case "left":
+        return "21%";
+      case "center":
+        return "50%";
+      default:
+        return "50%";
+    }
+  }};
   transform: translateX(-50%);
 
   & > div:last-child {
@@ -31,18 +41,34 @@ const Tab = styled.div<{ isActive?: boolean }>`
   ${fontStyle("14px", "20px", "bold")};
 `;
 
+const PostIcon = styled.img`
+  position: absolute;
+  right: 25px;
+  top: 16px;
+  ${sizeStyle("20px", "20px")};
+`;
+
 enum TabState {
   HOT = "HOT",
   NEW = "NEW",
 }
 
 type Props = {
+  postIcon?: boolean;
+  direction?: "left" | "center";
   onHotClick: () => void;
   onNewClick: () => void;
+  onPost?: () => void;
 };
 
 const Tabs = (props: Props) => {
-  const { onHotClick, onNewClick } = props;
+  const {
+    direction = "center",
+    postIcon,
+    onHotClick,
+    onNewClick,
+    onPost,
+  } = props;
 
   const [tabState, setTabState] = useState<TabState>(TabState.HOT);
 
@@ -56,9 +82,15 @@ const Tabs = (props: Props) => {
     onNewClick();
   };
 
+  const onPostAction = () => {
+    if (typeof onPost === "function") {
+      onPost();
+    }
+  };
+
   return (
     <Wrapper>
-      <Center>
+      <Center direction={direction}>
         <Tab isActive={tabState === TabState.HOT} onClick={hotClickAction}>
           熱門
         </Tab>
@@ -66,6 +98,13 @@ const Tabs = (props: Props) => {
           最新
         </Tab>
       </Center>
+      {postIcon && (
+        <PostIcon
+          src="/static/lnr-pencil@3x.png"
+          alt="add a post"
+          onClick={onPostAction}
+        />
+      )}
     </Wrapper>
   );
 };
