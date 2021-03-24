@@ -30,6 +30,14 @@ const SeeMoreComment = styled.div`
   ${fontStyle("12px", "17px", "bold")}
 `;
 
+const NoPost = styled.p`
+  text-align: center;
+  padding: 16px 0;
+  color: ${({ theme: { color } }) => color.grey500};
+  background: ${({ theme: { color } }) => color.grey100};
+  ${fontStyle("12px", "17px", "bold")};
+`;
+
 export enum SectionType {
   COMMENT = "comment",
   RELATION = "relation",
@@ -47,6 +55,14 @@ export default function SectionContent(props: Props) {
 
   switch (sectionType) {
     case SectionType.COMMENT:
+      if (comments?.length === 0)
+        return (
+          <>
+            <Title>文章回應</Title>
+            <NoPost>目前沒有回應</NoPost>
+          </>
+        );
+
       return (
         <>
           <Title>文章回應</Title>

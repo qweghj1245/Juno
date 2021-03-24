@@ -9,7 +9,7 @@ import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 import styled from "styled-components";
@@ -75,6 +75,13 @@ const CustomImage = styled.img`
   object-fit: contain;
 `;
 
+const NoPost = styled.p`
+  text-align: center;
+  padding: 28px 0;
+  color: ${({ theme: { color } }) => color.grey500};
+  ${fontStyle("12px", "17px", "bold")};
+`;
+
 type Tab = "owner" | "collect";
 
 const SelectStyle = {
@@ -106,6 +113,29 @@ export default function Member() {
   } = useSelector(memberState);
 
   const [tab, setTab] = useState<Tab>("owner");
+
+  const postList = useMemo(() => {
+    switch (tab) {
+      case "owner":
+        if (memberPost.length === 0) {
+          return <NoPost>還沒有發表文章</NoPost>;
+        }
+
+        return memberPost.map((post) => (
+          <PostCard key={post.id} post={post} postTags={postTags} />
+        ));
+      case "collect":
+        if (memberCollects.length === 0) {
+          return <NoPost>還沒有發表文章</NoPost>;
+        }
+
+        return memberCollects.map((post) => (
+          <PostCard key={post.id} post={post} postTags={postTags} />
+        ));
+      default:
+        return null;
+    }
+  }, [tab, memberPost, memberCollects, postTags]);
 
   useEffect(() => {
     if (memberProile) {
@@ -151,16 +181,7 @@ export default function Member() {
           onChange={(option) => setTab(option!.value as Tab)}
         />
       </Selector>
-      <CardWrapper>
-        {tab === "owner" &&
-          memberPost.map((post) => (
-            <PostCard key={post.id} post={post} postTags={postTags} />
-          ))}
-        {tab === "collect" &&
-          memberCollects.map((post) => (
-            <PostCard key={post.id} post={post} postTags={postTags} />
-          ))}
-      </CardWrapper>
+      <CardWrapper>{postList}</CardWrapper>
     </>
   );
 }
