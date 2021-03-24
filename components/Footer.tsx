@@ -50,8 +50,8 @@ export default function Footer() {
           <CustomImage
             src={
               categoryMatch(router)
-                ? "/static/lnr-tag@3x.png"
-                : "/static/icon_tag_gray@3x.png"
+                ? "/static/lnr-menu@3x.png"
+                : "/static/lnr-menu_gray@3x.png"
             }
             alt="tag"
           />

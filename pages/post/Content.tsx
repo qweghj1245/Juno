@@ -26,6 +26,10 @@ const PostTitle = styled.h1`
 
 const Paragraph = styled.div`
   ${fontStyle("16px", "22px")};
+
+  & > p {
+    height: 22px;
+  }
 `;
 
 const CategoryDot = styled.div`
