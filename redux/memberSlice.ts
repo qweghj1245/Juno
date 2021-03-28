@@ -1,7 +1,11 @@
 import PostApi, { GroupPost, PostTagsMap } from "@api/PostApi";
 import { createAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AuthApi from "api/AuthApi";
-import MemberApi, { MemberAggregate, MemberProfile } from "api/MemberApi";
+import MemberApi, {
+  MemberAggregate,
+  MemberProfile,
+  PatchMemberPayload,
+} from "api/MemberApi";
 import { HYDRATE } from "next-redux-wrapper";
 import { RootState } from "./rootReducer";
 
@@ -11,6 +15,7 @@ interface IState {
   memberPost: GroupPost[];
   memberCollects: GroupPost[];
   postTags: PostTagsMap;
+  isPatchDone: boolean;
 }
 
 const initialState: IState = {
@@ -19,6 +24,7 @@ const initialState: IState = {
   memberPost: [],
   memberCollects: [],
   postTags: {},
+  isPatchDone: false,
 };
 
 export const fetchGoogleSignIn = createAsyncThunk(
@@ -31,9 +37,14 @@ export const fetchGoogleSignIn = createAsyncThunk(
 
 export const fetchMemberInfo = createAsyncThunk(
   "member/fetchMemberInfo",
-  async (_, thunkApi) => {
-    const { appConfig } = thunkApi.getState() as RootState;
-    const response = await MemberApi.fetchMemberInfo(appConfig.requestHeader);
+  async (config: { isServer: boolean }, thunkApi) => {
+    if (config.isServer) {
+      const { appConfig } = thunkApi.getState() as RootState;
+      const response = await MemberApi.fetchMemberInfo(appConfig.requestHeader);
+      return response;
+    }
+
+    const response = await MemberApi.fetchMemberInfo();
     return response;
   }
 );
@@ -66,6 +77,15 @@ export const fetchMemberCollects = createAsyncThunk(
   }
 );
 
+export const fetchPatchMember = createAsyncThunk(
+  "member/fetchPatchMember",
+  async (payload: PatchMemberPayload, thunkApi) => {
+    await MemberApi.fetchPatchMember(payload);
+    await thunkApi.dispatch(fetchMemberInfo({ isServer: false }));
+    return "Success";
+  }
+);
+
 export const fetchPostTags = createAsyncThunk(
   "member/fetchPostTags",
   async (postIds: number[]) => {
@@ -79,7 +99,11 @@ const hydrate = createAction<RootState>(HYDRATE);
 const memberSlice = createSlice({
   name: "member",
   initialState,
-  reducers: {},
+  reducers: {
+    setResetIsPatch: (state) => {
+      state.isPatchDone = false;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(hydrate, (state, action) => {
       return {
@@ -105,8 +129,12 @@ const memberSlice = createSlice({
     builder.addCase(fetchPostTags.fulfilled, (state, action) => {
       state.postTags = { ...state.postTags, ...action.payload };
     });
+    builder.addCase(fetchPatchMember.fulfilled, (state) => {
+      state.isPatchDone = true;
+    });
   },
 });
 
 export const memberState = (state: RootState) => state.member;
+export const { setResetIsPatch } = memberSlice.actions;
 export default memberSlice.reducer;

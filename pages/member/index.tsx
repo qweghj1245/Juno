@@ -18,6 +18,10 @@ import styled from "styled-components";
 const MemberInfo = styled.section`
   padding: 16px;
   border-bottom: solid 1px ${({ theme: { color } }) => color.grey100};
+
+  p {
+    height: 20px;
+  }
 `;
 
 const Avator = styled.img`
@@ -37,7 +41,7 @@ const SettingScope = styled(Row)`
   ${sizeStyle("48px", "48px")};
 `;
 
-const MemberIntro = styled.p`
+const MemberIntro = styled.div`
   margin-top: 16px;
   ${fontStyle("14px", "20px")};
 `;
@@ -160,7 +164,11 @@ export default function Member() {
             </SettingScope>
           </Link>
         </Row>
-        <MemberIntro>{memberProile?.description}</MemberIntro>
+        {memberProile && (
+          <MemberIntro
+            dangerouslySetInnerHTML={{ __html: memberProile.description }}
+          />
+        )}
       </MemberInfo>
       <TargetGrid>
         <div>

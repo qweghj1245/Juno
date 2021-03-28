@@ -34,11 +34,17 @@ export interface MemberAggregate {
   bePraised: string;
 }
 
+export interface PatchMemberPayload {
+  name: string;
+  description: string;
+}
+
 export interface MemberAPI {
   fetchMemberInfo: (requestHeader?: any) => Promise<MemberProfile>;
   fetchMemberAggregate: () => Promise<MemberAggregate>;
   fetchMemberPost: () => Promise<GroupPost[]>;
   fetchMemberCollects: () => Promise<GroupPost[]>;
+  fetchPatchMember: (payload: PatchMemberPayload) => Promise<void>;
 }
 
 const apiClient = new CoreApi({ apiVersion: "" });
@@ -59,6 +65,9 @@ const MemberApi: MemberAPI = {
   fetchMemberCollects: async () => {
     const response = await apiClient.get("/member/collects/");
     return convertToCamelCase(response.data.result);
+  },
+  fetchPatchMember: async (payload) => {
+    await apiClient.patch("/member/", payload);
   },
 };
 

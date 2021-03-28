@@ -1,9 +1,22 @@
 import Editor from "@draft-js-plugins/editor";
+import {
+  fetchPatchMember,
+  memberState,
+  setResetIsPatch,
+} from "@redux/memberSlice";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
-import { convertFromRaw, convertToRaw, EditorState } from "draft-js";
+import {
+  ContentState,
+  convertFromRaw,
+  convertToRaw,
+  EditorState,
+} from "draft-js";
 import draftToHtml from "draftjs-to-html";
-import React, { useMemo, useState } from "react";
+import htmlToDraft from "html-to-draftjs";
+import { useRouter } from "next/router";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
@@ -16,6 +29,11 @@ const Wrapper = styled.div`
     padding: 12px 16px 16px;
     height: calc(100vh - 263px);
     ${fontStyle("14px", "17px")};
+  }
+
+  .DraftEditor-editorContainer,
+  .public-DraftEditor-content {
+    height: 100%;
   }
 `;
 
@@ -65,6 +83,12 @@ const emptyContentState = convertFromRaw({
 });
 
 export default function MemberEditor() {
+  const router = useRouter();
+
+  const dispatch = useDispatch();
+  const { memberProile, isPatchDone } = useSelector(memberState);
+
+  const [name, setName] = useState<string>(memberProile!.name);
   const [editorState, setEditorState] = useState<EditorState>(
     EditorState.createWithContent(emptyContentState)
   );
@@ -74,21 +98,51 @@ export default function MemberEditor() {
     return draftToHtml(json);
   }, [editorState]);
 
-  const onChange = (edt: EditorState) => {
-    setEditorState(edt);
+  const htmlToDraftjs = useCallback((html: any) => {
+    const blocksFromHtml = htmlToDraft(html);
+    const { contentBlocks, entityMap } = blocksFromHtml;
+    const contentState = ContentState.createFromBlockArray(
+      contentBlocks,
+      entityMap
+    );
+    const editorState = EditorState.createWithContent(contentState);
+    return editorState;
+  }, []);
+
+  const onFinishEdit = () => {
+    const payload = {
+      name,
+      description: draftjsToHTML,
+    };
+
+    dispatch(fetchPatchMember(payload));
   };
+
+  useEffect(() => {
+    if (isPatchDone) {
+      router.push("/member");
+    }
+  }, [isPatchDone]);
+
+  useEffect(() => {
+    setEditorState(htmlToDraftjs(memberProile!.description));
+  }, [memberProile]);
+
+  useEffect(() => {
+    dispatch(setResetIsPatch());
+  }, [dispatch]);
 
   return (
     <Wrapper>
       <Avator />
       <Label>名稱欄位</Label>
-      <NameInput
-        contentEditable
-        onInput={(e: any) => console.log(e.target.innerText)}
-      />
+      <NameInput value={name} onChange={(e) => setName(e.target.value)} />
       <Label>個人簡介</Label>
-      <Editor editorState={editorState} onChange={onChange} />
-      <Complete>完成</Complete>
+      <Editor
+        editorState={editorState}
+        onChange={(edt) => setEditorState(edt)}
+      />
+      <Complete onClick={onFinishEdit}>完成</Complete>
     </Wrapper>
   );
 }

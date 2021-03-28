@@ -23,7 +23,7 @@ Application.getInitialProps = async ({ ctx }: any) => {
       ctx.store.dispatch(setRequestHeader(ctx.req.headers));
 
       if (ctx.req?.headers?.cookie) {
-        await ctx.store.dispatch(fetchMemberInfo());
+        await ctx.store.dispatch(fetchMemberInfo({ isServer: true }));
       }
     }
   } catch (error) {}
