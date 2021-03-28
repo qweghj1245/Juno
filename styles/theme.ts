@@ -12,7 +12,7 @@ declare module "styled-components" {
 
 const theme = {
   color: {
-    primary: "#374CA5",
+    primary: "#2853C7", // 3/28 寶寶說要換
     grey100: "#EDEDED",
     grey500: "#B5B5B5",
     grey900: "#333333",

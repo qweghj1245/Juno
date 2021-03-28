@@ -50,7 +50,7 @@ const CategoryPosts: FC<Props> = (props) => {
   const postEditAction = () => {
     dispatch(setCurrentCategory(parseCategoryId));
     router.push({
-      pathname: "/post/edit",
+      pathname: "/post/new-post",
     });
   };
 

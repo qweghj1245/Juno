@@ -45,7 +45,9 @@ const Cancel = styled.button`
 const Deploy = styled.button`
   padding: 8px 24px;
   border-radius: 17px;
-  background: ${({ theme: { color } }) => color.grey500};
+  box-shadow: 0px 3px 12px #2853c74d;
+  background: ${({ theme: { color } }) => color.primary};
+  color: ${({ theme: { color } }) => color.white};
   ${fontStyle("12px", "17px", "bold")};
 `;
 
