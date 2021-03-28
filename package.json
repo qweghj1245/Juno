@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@draft-js-plugins/editor": "^4.1.0",
-    "@draft-js-plugins/emoji": "^4.3.0",
     "@reduxjs/toolkit": "^1.5.0",
     "@types/draftjs-to-html": "^0.8.0",
     "@types/html-to-draftjs": "^1.4.0",

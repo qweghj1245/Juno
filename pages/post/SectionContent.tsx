@@ -82,7 +82,7 @@ export default function SectionContent(props: Props) {
           <Title>相關文章</Title>
           <Wrapper>
             {relationPosts?.map((post) => (
-              <RelationCard post={post} postTags={postTags!} />
+              <RelationCard key={post.id} post={post} postTags={postTags!} />
             ))}
           </Wrapper>
         </Gap>

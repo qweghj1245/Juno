@@ -50,7 +50,9 @@ export default function PostCard(props: Props) {
       <Wrapper>
         <Row>
           {postTags[post.id].map((tag, idx, arr) => (
-            <Tag>{`${tag.name}${idx !== arr.length - 1 ? "・" : ""}`}</Tag>
+            <Tag key={tag.tagId}>{`${tag.name}${
+              idx !== arr.length - 1 ? "・" : ""
+            }`}</Tag>
           ))}
         </Row>
         <Row justifyContent="space-between">

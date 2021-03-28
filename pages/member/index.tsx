@@ -8,6 +8,7 @@ import {
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -153,9 +154,11 @@ export default function Member() {
         <Row>
           <Avator src={memberProile?.avator} alt={memberProile?.avatorAlt} />
           <Name>{memberProile?.name}</Name>
-          <SettingScope>
-            <CustomImage src="/static/icon_cog_gray@3x.png" alt="" />
-          </SettingScope>
+          <Link href="/member/edit">
+            <SettingScope>
+              <CustomImage src="/static/icon_cog_gray@3x.png" alt="" />
+            </SettingScope>
+          </Link>
         </Row>
         <MemberIntro>{memberProile?.description}</MemberIntro>
       </MemberInfo>

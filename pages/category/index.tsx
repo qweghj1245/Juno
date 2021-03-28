@@ -43,7 +43,7 @@ const CategoryPage = (props: Props) => {
     <>
       <Title>分類</Title>
       {categories.map((category) => (
-        <Link href={`/category/${category.id}`}>
+        <Link key={category.id} href={`/category/${category.id}`}>
           <CategoryWrapper>
             <Icon src={testImage} />
             <CategoryTitle>{category.name}</CategoryTitle>

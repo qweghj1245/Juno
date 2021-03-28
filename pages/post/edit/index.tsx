@@ -1,3 +1,4 @@
+import Editor from "@draft-js-plugins/editor";
 import { fetchCreatePost, postState, setIsNotCreate } from "@redux/postSlice";
 import { tagState } from "@redux/tagSlice";
 import { Row } from "@styles/flexStyle";
@@ -6,7 +7,6 @@ import {
   ContentState,
   convertFromRaw,
   convertToRaw,
-  Editor,
   EditorState,
 } from "draft-js";
 import "draft-js/dist/Draft.css";
@@ -78,7 +78,6 @@ export default function PostEditor() {
   const { isCreated, currentCategory } = useSelector(postState);
   const { selectTags } = useSelector(tagState);
 
-  const [init, setInit] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
   const [editorState, setEditorState] = useState<EditorState>(
     EditorState.createWithContent(emptyContentState)
@@ -92,7 +91,6 @@ export default function PostEditor() {
     // console.log("2", EditorState.createWithContent(convertFromRaw(json))); // convertFromRaw 轉成的格式是 ContentState, 但編輯器要的格式是 EditorState
     // console.log("3", edt); // EditorState
     setEditorState(edt);
-    if (!init) setInit(true);
   };
 
   const draftjsToHTML = useMemo(() => {
@@ -101,17 +99,14 @@ export default function PostEditor() {
   }, [editorState]);
 
   const htmlToDraftjs = (html: any) => {
-    if (init) {
-      const blocksFromHtml = htmlToDraft(html);
-      const { contentBlocks, entityMap } = blocksFromHtml;
-      const contentState = ContentState.createFromBlockArray(
-        contentBlocks,
-        entityMap
-      );
-      const editorState = EditorState.createWithContent(contentState);
-      return editorState;
-    }
-    return "";
+    const blocksFromHtml = htmlToDraft(html);
+    const { contentBlocks, entityMap } = blocksFromHtml;
+    const contentState = ContentState.createFromBlockArray(
+      contentBlocks,
+      entityMap
+    );
+    const editorState = EditorState.createWithContent(contentState);
+    return editorState;
   };
 
   const deployPost = () => {

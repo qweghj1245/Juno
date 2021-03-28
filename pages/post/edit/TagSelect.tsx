@@ -148,7 +148,7 @@ export default function TagSelect() {
         />
         <SelectTagWrapper ref={tagsRef}>
           {selectTags.map((item) => (
-            <SelectTag>{item.name}</SelectTag>
+            <SelectTag key={item.id}>{item.name}</SelectTag>
           ))}
         </SelectTagWrapper>
       </SelectWrapper>
