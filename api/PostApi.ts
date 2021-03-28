@@ -64,7 +64,7 @@ export interface Comment {
   updateAt: number;
   createdAt: number;
   postId: number;
-  userInfo: {
+  memberInfo: {
     email: string;
     name: string;
     description: string;

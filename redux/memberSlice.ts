@@ -80,8 +80,9 @@ export const fetchMemberCollects = createAsyncThunk(
 export const fetchPatchMember = createAsyncThunk(
   "member/fetchPatchMember",
   async (payload: PatchMemberPayload, thunkApi) => {
-    await MemberApi.fetchPatchMember(payload);
-    await thunkApi.dispatch(fetchMemberInfo({ isServer: false }));
+    await MemberApi.fetchPatchMember(payload).then(() => {
+      thunkApi.dispatch(fetchMemberInfo({ isServer: false }));
+    });
     return "Success";
   }
 );
@@ -99,11 +100,7 @@ const hydrate = createAction<RootState>(HYDRATE);
 const memberSlice = createSlice({
   name: "member",
   initialState,
-  reducers: {
-    setResetIsPatch: (state) => {
-      state.isPatchDone = false;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder.addCase(hydrate, (state, action) => {
       return {
@@ -115,6 +112,7 @@ const memberSlice = createSlice({
       state.memberProile = action.payload;
     });
     builder.addCase(fetchMemberInfo.fulfilled, (state, action) => {
+      state.isPatchDone = false;
       state.memberProile = action.payload;
     });
     builder.addCase(fetchMemberAggregate.fulfilled, (state, action) => {
@@ -136,5 +134,4 @@ const memberSlice = createSlice({
 });
 
 export const memberState = (state: RootState) => state.member;
-export const { setResetIsPatch } = memberSlice.actions;
 export default memberSlice.reducer;

@@ -1,9 +1,10 @@
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import { Comment, PostTagsMap, RelationPost } from "api/PostApi";
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import CommentCard from "./CommentCard";
+import CommentsModal from "./CommentsModal";
 import RelationCard from "./RelationCard";
 
 const Wrapper = styled.section`
@@ -40,7 +41,7 @@ const NoPost = styled.p`
 `;
 
 const WriteCommentWrapper = styled.div`
-  padding: 0 16px;
+  padding: 0 16px 16px;
   background: ${({ theme: { color } }) => color.grey100};
 `;
 
@@ -90,6 +91,8 @@ type Props = {
 export default function SectionContent(props: Props) {
   const { sectionType, comments, relationPosts, postTags } = props;
 
+  const [moreComments, setMoreComments] = useState<boolean>(false);
+
   const WriteCommentComponent = () => (
     <WriteCommentWrapper>
       <WriteComment justifyContent="center">
@@ -122,7 +125,12 @@ export default function SectionContent(props: Props) {
               <CommentCard key={comment.id} comment={comment} />
             ))}
           </Wrapper>
-          <SeeMoreComment>查看更多回應</SeeMoreComment>
+          <SeeMoreComment onClick={() => setMoreComments(true)}>
+            查看更多回應
+          </SeeMoreComment>
+          {moreComments && (
+            <CommentsModal close={() => setMoreComments(false)} />
+          )}
         </>
       );
     case SectionType.RELATION:

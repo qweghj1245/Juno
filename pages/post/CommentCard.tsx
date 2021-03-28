@@ -10,7 +10,7 @@ const Wrapper = styled(Row)`
   padding: 16px 0;
   align-items: flex-start;
   background: ${({ theme: { color } }) => color.white};
-  border-top: solid 1px ${({ theme: { color } }) => color.grey100};
+  border-bottom: solid 1px ${({ theme: { color } }) => color.grey100};
 `;
 
 const Avator = styled.img`
@@ -43,9 +43,12 @@ export default function CommentCard(props: Props) {
 
   return (
     <Wrapper>
-      <Avator src={comment.userInfo.avator || ""} alt={comment.userInfo.name} />
+      <Avator
+        src={comment.memberInfo.avator || ""}
+        alt={comment.memberInfo.name}
+      />
       <div>
-        <Name>{comment.userInfo.name}</Name>
+        <Name>{comment.memberInfo.name}</Name>
         <CreateTime>
           {moment(comment.createdAt).format("YYYY-MM-DD HH:mm")}
         </CreateTime>

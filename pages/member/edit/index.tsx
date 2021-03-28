@@ -1,9 +1,5 @@
 import Editor from "@draft-js-plugins/editor";
-import {
-  fetchPatchMember,
-  memberState,
-  setResetIsPatch,
-} from "@redux/memberSlice";
+import { fetchPatchMember, memberState } from "@redux/memberSlice";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
 import {
@@ -127,10 +123,6 @@ export default function MemberEditor() {
   useEffect(() => {
     setEditorState(htmlToDraftjs(memberProile!.description));
   }, [memberProile]);
-
-  useEffect(() => {
-    dispatch(setResetIsPatch());
-  }, [dispatch]);
 
   return (
     <Wrapper>
