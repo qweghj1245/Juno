@@ -18,6 +18,7 @@ import Evaluation from "../Evaluation";
 import SectionContent, { SectionType } from "../SectionContent";
 
 const Wrapper = styled.div`
+  padding-bottom: 50px;
   background: ${({ theme: { color } }) => color.white};
 `;
 
@@ -29,7 +30,7 @@ type Props = {
 };
 
 const Post: FC<Props> = (props) => {
-  const { post, postTags, comments, relationPosts } = props;
+  const { post, postTags, relationPosts } = props;
 
   const dispatch = useDispatch();
   const {
@@ -66,7 +67,7 @@ const Post: FC<Props> = (props) => {
         isCollect={post.isCollect}
         collectId={post.collectId}
       />
-      <SectionContent sectionType={SectionType.COMMENT} comments={comments} />
+      <SectionContent sectionType={SectionType.COMMENT} />
       <SectionContent
         sectionType={SectionType.RELATION}
         relationPosts={relationPosts}
@@ -79,7 +80,6 @@ const Post: FC<Props> = (props) => {
 export const getServerSideProps = wrapper.getServerSideProps(async (ctx) => {
   let post: SinglePost | null = null;
   let postTags: PostTagsMap = {};
-  let comments: Comment[] = [];
   let relationPosts: RelationPost[] = [];
   let postIds: number[] = [];
 
@@ -90,7 +90,6 @@ export const getServerSideProps = wrapper.getServerSideProps(async (ctx) => {
 
   try {
     await ctx.store.dispatch(fetchComments(ctx.query.id));
-    comments = ctx.store.getState().post.commentsResult.comments;
   } catch (error) {}
 
   try {
@@ -104,7 +103,7 @@ export const getServerSideProps = wrapper.getServerSideProps(async (ctx) => {
     postTags = ctx.store.getState().post.postTags;
   } catch (error) {}
 
-  return { props: { post, postTags, comments, relationPosts } };
+  return { props: { post, postTags, relationPosts } };
 });
 
 export default Post;

@@ -110,6 +110,11 @@ export interface FetchPositiveNegativeStatusPayload {
   postNegative: boolean;
 }
 
+export interface FetchCreateComment {
+  postId: number;
+  content: string;
+}
+
 const apiClient = new CoreApi({ apiVersion: "v1" });
 
 export interface PostAPI {
@@ -117,6 +122,7 @@ export interface PostAPI {
   fetchPostTags: (postIds: number[]) => Promise<PostTagsMap>;
   fetchPost: (postId: number) => Promise<SinglePost>;
   fetchComments: (postId: number) => Promise<CommentsResults>;
+  fetchCreateComment: (payload: FetchCreateComment) => Promise<void>;
   fetchRelationPosts: (postId: number) => Promise<RelationPost[]>;
   fetchCreatePost: (payload: FetchCreatePost) => Promise<void>;
   fetchAddPostPositive: (postId: number) => Promise<void>;
@@ -174,6 +180,12 @@ const PostApi: PostAPI = {
       post_id: postId,
     });
     return convertToCamelCase(response.data.result);
+  },
+  fetchCreateComment: async (payload) => {
+    await apiClient.post("/comment/", {
+      post_id: payload.postId,
+      content: payload.content,
+    });
   },
   fetchRelationPosts: async (postId) => {
     const response = await apiClient.get(`/post/relation/${postId}/`);

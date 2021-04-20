@@ -1,9 +1,12 @@
+import { postState } from "@redux/postSlice";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
-import { Comment, PostTagsMap, RelationPost } from "api/PostApi";
+import { PostTagsMap, RelationPost } from "api/PostApi";
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 import CommentCard from "./CommentCard";
+import CommentEditorModal from "./CommentEditorModal";
 import CommentsModal from "./CommentsModal";
 import RelationCard from "./RelationCard";
 
@@ -83,19 +86,24 @@ export enum SectionType {
 
 type Props = {
   sectionType: SectionType;
-  comments?: Comment[];
   relationPosts?: RelationPost[];
   postTags?: PostTagsMap;
 };
 
 export default function SectionContent(props: Props) {
-  const { sectionType, comments, relationPosts, postTags } = props;
+  const { sectionType, relationPosts, postTags } = props;
+
+  const { commentsResult } = useSelector(postState);
 
   const [moreComments, setMoreComments] = useState<boolean>(false);
+  const [writeComments, setWriteComments] = useState<boolean>(false);
 
   const WriteCommentComponent = () => (
     <WriteCommentWrapper>
-      <WriteComment justifyContent="center">
+      <WriteComment
+        justifyContent="center"
+        onClick={() => setWriteComments(true)}
+      >
         <MemberImage src="" alt="" />
         <LinearGradient>
           <AskingText>對這篇文章有想法嗎？</AskingText>
@@ -107,29 +115,29 @@ export default function SectionContent(props: Props) {
 
   switch (sectionType) {
     case SectionType.COMMENT:
-      if (comments?.length === 0)
-        return (
-          <>
-            <Title>文章回應</Title>
-            {WriteCommentComponent()}
-            <NoPost>目前沒有回應</NoPost>
-          </>
-        );
-
       return (
         <>
           <Title>文章回應</Title>
           {WriteCommentComponent()}
-          <Wrapper>
-            {comments?.map((comment) => (
-              <CommentCard key={comment.id} comment={comment} />
-            ))}
-          </Wrapper>
-          <SeeMoreComment onClick={() => setMoreComments(true)}>
-            查看更多回應
-          </SeeMoreComment>
+          {commentsResult.comments && commentsResult.comments.length > 0 ? (
+            <>
+              <Wrapper>
+                {commentsResult.comments?.map((comment) => (
+                  <CommentCard key={comment.id} comment={comment} />
+                ))}
+              </Wrapper>
+              <SeeMoreComment onClick={() => setMoreComments(true)}>
+                查看更多回應
+              </SeeMoreComment>
+            </>
+          ) : (
+            <NoPost>目前沒有回應</NoPost>
+          )}
           {moreComments && (
             <CommentsModal close={() => setMoreComments(false)} />
+          )}
+          {writeComments && (
+            <CommentEditorModal close={() => setWriteComments(false)} />
           )}
         </>
       );

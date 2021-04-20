@@ -30,8 +30,12 @@ const CreateTime = styled.h5`
   color: ${({ theme: { color } }) => color.grey500};
 `;
 
-const Content = styled.p`
+const Content = styled.div`
   ${fontStyle("16px", "22px")};
+
+  & > p {
+    height: 22px;
+  }
 `;
 
 type Props = {
@@ -52,7 +56,7 @@ export default function CommentCard(props: Props) {
         <CreateTime>
           {moment(comment.createdAt).format("YYYY-MM-DD HH:mm")}
         </CreateTime>
-        <Content>{comment.content}</Content>
+        <Content dangerouslySetInnerHTML={{ __html: comment.content }} />
       </div>
     </Wrapper>
   );

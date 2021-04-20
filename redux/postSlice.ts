@@ -2,6 +2,7 @@ import CollectApi from "@api/CollectApi";
 import { createAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import PostApi, {
   CommentsResults,
+  FetchCreateComment,
   FetchCreatePost,
   FetchPositiveNegativeStatusPayload,
   FetchPostsQuery,
@@ -107,6 +108,15 @@ export const fetchComments = createAsyncThunk(
   async (postId: number) => {
     const response = await PostApi.fetchComments(postId);
     return response;
+  }
+);
+
+export const fetchCreateComment = createAsyncThunk(
+  "post/fetchCreateComment",
+  async (payload: FetchCreateComment, thunkApi) => {
+    await PostApi.fetchCreateComment(payload);
+    await thunkApi.dispatch(fetchComments(payload.postId));
+    return "Success";
   }
 );
 
