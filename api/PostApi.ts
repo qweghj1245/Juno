@@ -115,6 +115,17 @@ export interface FetchCreateComment {
   content: string;
 }
 
+export interface FetchLinkPageInfoPayload {
+  link: string;
+}
+
+export interface LinkPageInfo {
+  title: string;
+  description: string;
+  url: string;
+  image: string;
+}
+
 const apiClient = new CoreApi({ apiVersion: "v1" });
 
 export interface PostAPI {
@@ -137,6 +148,9 @@ export interface PostAPI {
     postId: number,
     payload: FetchPositiveNegativeStatusPayload
   ) => Promise<void>;
+  fetchLinkPageInfo: (
+    payload: FetchLinkPageInfoPayload
+  ) => Promise<LinkPageInfo>;
 }
 
 const PostApi: PostAPI = {
@@ -230,6 +244,10 @@ const PostApi: PostAPI = {
       post_positive: payload.postPositive,
       post_negative: payload.postNegative,
     });
+  },
+  fetchLinkPageInfo: async (payload) => {
+    const response = await apiClient.post("/post/link/", payload);
+    return convertToCamelCase(response.data.result);
   },
 };
 

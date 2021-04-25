@@ -2,8 +2,9 @@ import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import { PostTags } from "api/PostApi";
 import Link from "next/link";
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
+import shareLinkHtml from "utils/shareLinkHtml";
 
 const Wrapper = styled.main`
   padding: 12px 16px;
@@ -47,6 +48,26 @@ type Props = {
 export default function Content(props: Props) {
   const { categoryName, tags, title, content } = props;
 
+  const [contentHtml, setContentHtml] = useState<string>("");
+
+  const contentParser = useCallback(async () => {
+    const matchRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
+    const parseLink = content.match(matchRegex);
+
+    if (parseLink) {
+      const shareHtml = await shareLinkHtml({ url: parseLink[0] });
+      setContentHtml(content.replace(matchRegex, shareHtml));
+    } else {
+      setContentHtml(content);
+    }
+  }, [content]);
+
+  useEffect(() => {
+    contentParser();
+  }, [contentParser]);
+
+  console.log(contentHtml);
+
   return (
     <Wrapper>
       <Row>
@@ -62,7 +83,7 @@ export default function Content(props: Props) {
           ))}
       </Row>
       <PostTitle>{title}</PostTitle>
-      <Paragraph dangerouslySetInnerHTML={{ __html: content }} />
+      <Paragraph dangerouslySetInnerHTML={{ __html: contentHtml }} />
     </Wrapper>
   );
 }
