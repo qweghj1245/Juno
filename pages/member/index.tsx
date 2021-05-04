@@ -27,6 +27,7 @@ const MemberInfo = styled.section`
 const Avator = styled.img`
   margin-right: 12px;
   border-radius: 50%;
+  object-fit: cover;
   ${sizeStyle("48px", "48px")};
 `;
 

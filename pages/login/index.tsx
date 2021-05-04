@@ -8,6 +8,7 @@ import React, { useEffect } from "react";
 import { GoogleLogin } from "react-google-login";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
+
 const { publicRuntimeConfig } = getConfig();
 
 enum LoginType {

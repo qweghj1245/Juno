@@ -2,6 +2,7 @@ import Editor from "@draft-js-plugins/editor";
 import { fetchPatchMember, memberState } from "@redux/memberSlice";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
+import axios from "axios";
 import {
   ContentState,
   convertFromRaw,
@@ -10,10 +11,19 @@ import {
 } from "draft-js";
 import draftToHtml from "draftjs-to-html";
 import htmlToDraft from "html-to-draftjs";
+import getConfig from "next/config";
 import { useRouter } from "next/router";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
+
+const { publicRuntimeConfig } = getConfig();
 
 const Wrapper = styled.div`
   position: relative;
@@ -45,6 +55,7 @@ const Complete = styled.button`
 const Avator = styled.img`
   margin: 0 auto 12px auto;
   border-radius: 50%;
+  object-fit: cover;
   background: ${({ theme: { color } }) => color.grey100};
   ${sizeStyle("64px", "64px")};
 `;
@@ -61,6 +72,23 @@ const NameInput = styled.input`
   border: 0;
   border-bottom: solid 1px ${({ theme: { color } }) => color.grey100};
   ${fontStyle("14px", "20px", "bold")};
+`;
+
+const CustomLabel = styled.label`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
+const CustomInputFile = styled.input`
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 65px;
+  height: 65px;
+  top: 0px;
+  visibility: hidden;
+  opacity: 0;
 `;
 
 // for `draftjs getIn` undefined
@@ -84,10 +112,13 @@ export default function MemberEditor() {
   const dispatch = useDispatch();
   const { memberProile, isPatchDone } = useSelector(memberState);
 
+  const [localAvator, setLocalAvator] = useState<any>("");
   const [name, setName] = useState<string>(memberProile!.name);
   const [editorState, setEditorState] = useState<EditorState>(
     EditorState.createWithContent(emptyContentState)
   );
+
+  const fileInput = useRef<HTMLInputElement>(null);
 
   const draftjsToHTML = useMemo(() => {
     const json = convertToRaw(editorState.getCurrentContent());
@@ -105,11 +136,47 @@ export default function MemberEditor() {
     return editorState;
   }, []);
 
-  const onFinishEdit = () => {
+  const getAvatorBase64 = (file: any) => {
+    if (file) {
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          setLocalAvator(reader.result);
+          resolve("ok");
+        };
+        reader.onerror = (error) => reject(error);
+      });
+    }
+  };
+
+  const onFinishEdit = async () => {
     const payload = {
       name,
       description: draftjsToHTML,
+      avator: memberProile?.avator || "",
     };
+
+    if (fileInput.current?.files) {
+      try {
+        const formData = new FormData();
+        formData.append("image", fileInput.current?.files[0]);
+        formData.append("album", publicRuntimeConfig.NEXT_IMGUR_ALBUM_ID);
+        const response = await axios.post(
+          "https://api.imgur.com/3/image/",
+          formData,
+          {
+            headers: {
+              "Content-type": "application/x-www-form-urlencoded",
+              Authorization: `Bearer ${publicRuntimeConfig.NEXT_IMGUR_ACCESS_TOKEN}`,
+            },
+          }
+        );
+        payload.avator = response.data.data.link;
+      } catch (error) {
+        // file upload error
+      }
+    }
 
     dispatch(fetchPatchMember(payload));
   };
@@ -126,7 +193,17 @@ export default function MemberEditor() {
 
   return (
     <Wrapper>
-      <Avator />
+      <CustomLabel htmlFor="avatar">
+        <CustomInputFile
+          type="file"
+          id="avatar"
+          name="avatar"
+          accept="image/png, image/jpeg"
+          ref={fileInput}
+          onChange={(e) => getAvatorBase64(e.target.files![0])}
+        />
+        <Avator src={localAvator || memberProile?.avator || ""} />
+      </CustomLabel>
       <Label>名稱欄位</Label>
       <NameInput value={name} onChange={(e) => setName(e.target.value)} />
       <Label>個人簡介</Label>

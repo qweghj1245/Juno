@@ -37,6 +37,7 @@ export interface MemberAggregate {
 export interface PatchMemberPayload {
   name: string;
   description: string;
+  avator: string;
 }
 
 export interface MemberAPI {
