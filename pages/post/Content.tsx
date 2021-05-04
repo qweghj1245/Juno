@@ -61,8 +61,10 @@ export default function Content(props: Props) {
     const filterLink = parseLink.filter((link) => !matchImage.test(link));
 
     if (filterLink.length > 0) {
-      const shareHtml = await shareLinkHtml({ url: filterLink[0] || "" });
-      setContentHtml(content.replace(matchRegex, shareHtml));
+      filterLink.map(async (link) => {
+        const shareHtml = await shareLinkHtml({ url: link || "" });
+        setContentHtml(content.replace(link, shareHtml));
+      });
     } else {
       setContentHtml(content);
     }
