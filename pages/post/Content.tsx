@@ -55,10 +55,10 @@ export default function Content(props: Props) {
   const [contentHtml, setContentHtml] = useState<string>("");
 
   const contentParser = useCallback(async () => {
-    const matchRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
-    const matchImage = /jpg|png|gif|jpeg/g;
-    const parseLink = content.match(matchRegex) || [];
-    const filterLink = parseLink.filter((link) => !matchImage.test(link));
+    const matchUrlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
+    const matchImageRegex = /jpg|png|gif|jpeg/g;
+    const parseLink = content.match(matchUrlRegex) || [];
+    const filterLink = parseLink.filter((link) => !matchImageRegex.test(link));
 
     if (filterLink.length > 0) {
       filterLink.map(async (link) => {

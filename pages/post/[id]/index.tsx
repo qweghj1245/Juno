@@ -83,6 +83,8 @@ export const getServerSideProps = wrapper.getServerSideProps(async (ctx) => {
   let relationPosts: RelationPost[] = [];
   let postIds: number[] = [];
 
+  console.log("ctxctx", ctx.query);
+
   try {
     await ctx.store.dispatch(fetchPost(ctx.query.id));
     post = ctx.store.getState().post.post;

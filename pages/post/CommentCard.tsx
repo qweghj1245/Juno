@@ -16,6 +16,7 @@ const Wrapper = styled(Row)`
 const Avator = styled.img`
   margin-right: 8px;
   border-radius: 50%;
+  object-fit: cover;
   background: ${({ theme: { color } }) => color.grey100};
   ${sizeStyle("32px", "32px")};
 `;

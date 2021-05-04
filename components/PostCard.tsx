@@ -6,7 +6,7 @@ import textOverflow from "@styles/textOverflow";
 import { GroupPost, PostTagsMap } from "api/PostApi";
 import moment from "moment";
 import Link from "next/link";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import getKeys from "utils/getKeys";
 
@@ -42,6 +42,7 @@ const Description = styled.div`
 
 const PostImage = styled.img`
   border-radius: 10px;
+  object-fit: cover;
   ${sizeStyle("72px", "72px")};
 `;
 
@@ -60,6 +61,8 @@ type Props = {
 
 export default function PostCard(props: Props) {
   const { post, postTags } = props;
+
+  const [postImage, setPostImage] = useState<string>("");
 
   const getTags = useMemo(() => {
     const postId = getKeys(postTags).find((key) => post.id === key);
@@ -81,6 +84,19 @@ export default function PostCard(props: Props) {
     return `<span>${content.substring(0, content.length - 1)}</span>`;
   }, [post.content]);
 
+  useEffect(() => {
+    const matchUrlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
+    const matchImageRegex = /jpg|png|gif|jpeg/g;
+    const parseLink = post.content.match(matchUrlRegex) || [];
+    const filterImageLink = parseLink.filter((link) =>
+      matchImageRegex.test(link)
+    );
+
+    if (filterImageLink) {
+      setPostImage(filterImageLink[0] || "");
+    }
+  }, [post.content]);
+
   return (
     <Link href={`/post/${post.id}`}>
       <Wrapper>
@@ -97,7 +113,7 @@ export default function PostCard(props: Props) {
               {moment(post.createdAt).format("YYYY.MM.DD")}
             </CreateTime>
           </ContentWrapper>
-          <PostImage src={testImage} />
+          {postImage && <PostImage src={postImage} />}
         </Row>
       </Wrapper>
     </Link>

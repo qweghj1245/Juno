@@ -1,5 +1,6 @@
 import Modal from "@components/Modal";
 import Editor from "@draft-js-plugins/editor";
+import { memberState } from "@redux/memberSlice";
 import { fetchCreateComment, postState } from "@redux/postSlice";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
@@ -21,12 +22,22 @@ const Wrapper = styled.div`
     border: solid 1px ${({ theme: { color } }) => color.grey500};
     height: calc(100vh - 212px);
     ${fontStyle("14px", "17px")};
+
+    .DraftEditor-editorContainer,
+    .public-DraftEditor-content {
+      height: 100%;
+    }
+
+    .public-DraftEditor-content > div {
+      height: inherit;
+      overflow: scroll;
+    }
   }
 
-  .DraftEditor-editorContainer,
+  /* .DraftEditor-editorContainer,
   .public-DraftEditor-content {
     height: 100%;
-  }
+  } */
 `;
 
 const Title = styled.h2`
@@ -44,17 +55,13 @@ const SendButton = styled.button`
 const Avator = styled.img`
   margin-right: 8px;
   border-radius: 50%;
+  object-fit: cover;
   background: ${({ theme: { color } }) => color.grey100};
   ${sizeStyle("32px", "32px")};
 `;
 
 const Name = styled.h4`
   ${fontStyle("14px", "20px", "bold")};
-`;
-
-const CreateTime = styled.h5`
-  ${fontStyle("12px", "17px")};
-  color: ${({ theme: { color } }) => color.grey500};
 `;
 
 const CustomRow = styled(Row)<{ marginBottom: string }>`
@@ -85,6 +92,7 @@ export default function CommentEditorModal(props: Props) {
 
   const dispatch = useDispatch();
   const { post } = useSelector(postState);
+  const { memberProile } = useSelector(memberState);
 
   const [editorState, setEditorState] = useState<EditorState>(
     EditorState.createWithContent(emptyContentState)
@@ -117,10 +125,12 @@ export default function CommentEditorModal(props: Props) {
           <SendButton onClick={deployComment}>發布</SendButton>
         </CustomRow>
         <CustomRow marginBottom="16px">
-          <Avator src="" alt="" />
+          <Avator
+            src={memberProile?.avator || ""}
+            alt={memberProile?.avatorAlt || ""}
+          />
           <div>
-            <Name>Jemy</Name>
-            <CreateTime>2020/6/20 12:12</CreateTime>
+            <Name>{memberProile?.name || ""}</Name>
           </div>
         </CustomRow>
         <Editor editorState={editorState} onChange={onChange} />

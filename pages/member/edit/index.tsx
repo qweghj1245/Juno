@@ -84,11 +84,9 @@ const CustomInputFile = styled.input`
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  width: 65px;
-  height: 65px;
   top: 0px;
-  visibility: hidden;
   opacity: 0;
+  ${sizeStyle("65px", "65px")};
 `;
 
 // for `draftjs getIn` undefined

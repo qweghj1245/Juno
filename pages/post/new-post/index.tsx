@@ -3,22 +3,27 @@ import { fetchCreatePost, postState, setIsNotCreate } from "@redux/postSlice";
 import { tagState } from "@redux/tagSlice";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
+import sizeStyle from "@styles/sizeStyle";
+import axios from "axios";
 import {
   AtomicBlockUtils,
   ContentState,
   convertFromRaw,
   convertToRaw,
-  EditorState
+  EditorState,
 } from "draft-js";
 import createImagePlugin from "draft-js-image-plugin";
 import "draft-js/dist/Draft.css";
 import draftToHtml from "draftjs-to-html";
 import htmlToDraft from "html-to-draftjs";
+import getConfig from "next/config";
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import TagSelect from "./TagSelect";
+
+const { publicRuntimeConfig } = getConfig();
 
 const Wrapper = styled.div`
   height: 100vh;
@@ -31,6 +36,15 @@ const Wrapper = styled.div`
 
     figure > img {
       width: 100%;
+    }
+
+    .DraftEditor-editorContainer {
+      height: 100%;
+    }
+
+    .public-DraftEditor-content > div {
+      height: inherit;
+      overflow: scroll;
     }
   }
 `;
@@ -62,6 +76,30 @@ const TitleInput = styled.input`
   padding: 16px;
   border: 0;
   ${fontStyle("20px", "27px", "bold")};
+`;
+
+const UploadButton = styled.button`
+  background: #ededed;
+  ${fontStyle("12px", "17px")};
+  ${sizeStyle("48px", "48px")};
+`;
+
+const CustomLabel = styled.label`
+  position: fixed;
+  right: 24px;
+  top: 84%;
+  display: flex;
+  align-items: center;
+  z-index: 1;
+`;
+
+const CustomInputFile = styled.input`
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0px;
+  opacity: 0;
+  ${sizeStyle("48px", "48px")};
 `;
 
 // for `draftjs getIn` undefined
@@ -124,6 +162,30 @@ export default function PostEditor() {
     return editorState;
   };
 
+  const fetchImgurUrl = async (file: any) => {
+    if (file) {
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+        formData.append("album", publicRuntimeConfig.NEXT_IMGUR_ALBUM_ID);
+        const response = await axios.post(
+          "https://api.imgur.com/3/image/",
+          formData,
+          {
+            headers: {
+              "Content-type": "application/x-www-form-urlencoded",
+              Authorization: `Bearer ${publicRuntimeConfig.NEXT_IMGUR_ACCESS_TOKEN}`,
+            },
+          }
+        );
+        return response.data.data.link;
+      } catch (error) {
+        return "";
+      }
+    }
+    return "";
+  };
+
   const insertImage = (editorState: EditorState, base64: string) => {
     const contentState = editorState.getCurrentContent();
     const contentStateWithEntity = contentState.createEntity(
@@ -138,10 +200,9 @@ export default function PostEditor() {
     return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, " ");
   };
 
-  const handleClick = () => {
-    const base64 =
-      "https://c.files.bbci.co.uk/12A9B/production/_111434467_gettyimages-1143489763.jpg";
-    const newEditorState = insertImage(editorState, base64);
+  const handleClick = async (file: any) => {
+    const imgurUrl = await fetchImgurUrl(file);
+    const newEditorState = insertImage(editorState, imgurUrl);
     setEditorState(newEditorState);
   };
 
@@ -176,7 +237,6 @@ export default function PostEditor() {
   return (
     <Wrapper>
       <ButtonWrapper>
-        <button onClick={handleClick}>new image</button>
         <Cancel onClick={goBack}>取消</Cancel>
         <Deploy onClick={deployPost}>發布</Deploy>
       </ButtonWrapper>
@@ -186,6 +246,16 @@ export default function PostEditor() {
         onChange={(e) => setTitle(e.target.value)}
       />
       <Editor editorState={editorState} plugins={plugins} onChange={onChange} />
+      <CustomLabel htmlFor="image">
+        <CustomInputFile
+          type="file"
+          id="image"
+          name="image"
+          accept="image/png, image/jpeg"
+          onChange={(e) => handleClick(e.target.files![0])}
+        />
+        <UploadButton>上傳圖片</UploadButton>
+      </CustomLabel>
     </Wrapper>
   );
 }
