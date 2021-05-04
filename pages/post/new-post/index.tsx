@@ -4,11 +4,13 @@ import { tagState } from "@redux/tagSlice";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import {
+  AtomicBlockUtils,
   ContentState,
   convertFromRaw,
   convertToRaw,
-  EditorState,
+  EditorState
 } from "draft-js";
+import createImagePlugin from "draft-js-image-plugin";
 import "draft-js/dist/Draft.css";
 import draftToHtml from "draftjs-to-html";
 import htmlToDraft from "html-to-draftjs";
@@ -26,6 +28,10 @@ const Wrapper = styled.div`
     border-top: solid 1px ${({ theme: { color } }) => color.grey100};
     height: calc(100vh - 233px);
     ${fontStyle("14px", "17px")};
+
+    figure > img {
+      width: 100%;
+    }
   }
 `;
 
@@ -73,6 +79,9 @@ const emptyContentState = convertFromRaw({
   ],
 });
 
+const imagePlugin = createImagePlugin();
+const plugins = [imagePlugin];
+
 export default function PostEditor() {
   const router = useRouter();
 
@@ -97,7 +106,11 @@ export default function PostEditor() {
 
   const draftjsToHTML = useMemo(() => {
     const json = convertToRaw(editorState.getCurrentContent());
-    return draftToHtml(json);
+    return draftToHtml(json, {}, false, ({ type, data }) => {
+      if (type === "IMAGE") {
+        return `<img src="${data.src}" alt="" />`;
+      }
+    });
   }, [editorState]);
 
   const htmlToDraftjs = (html: any) => {
@@ -109,6 +122,27 @@ export default function PostEditor() {
     );
     const editorState = EditorState.createWithContent(contentState);
     return editorState;
+  };
+
+  const insertImage = (editorState: EditorState, base64: string) => {
+    const contentState = editorState.getCurrentContent();
+    const contentStateWithEntity = contentState.createEntity(
+      "IMAGE",
+      "IMMUTABLE",
+      { src: base64 }
+    );
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+    const newEditorState = EditorState.set(editorState, {
+      currentContent: contentStateWithEntity,
+    });
+    return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, " ");
+  };
+
+  const handleClick = () => {
+    const base64 =
+      "https://c.files.bbci.co.uk/12A9B/production/_111434467_gettyimages-1143489763.jpg";
+    const newEditorState = insertImage(editorState, base64);
+    setEditorState(newEditorState);
   };
 
   const deployPost = () => {
@@ -142,6 +176,7 @@ export default function PostEditor() {
   return (
     <Wrapper>
       <ButtonWrapper>
+        <button onClick={handleClick}>new image</button>
         <Cancel onClick={goBack}>取消</Cancel>
         <Deploy onClick={deployPost}>發布</Deploy>
       </ButtonWrapper>
@@ -150,7 +185,7 @@ export default function PostEditor() {
         placeholder="標題"
         onChange={(e) => setTitle(e.target.value)}
       />
-      <Editor editorState={editorState} onChange={onChange} />
+      <Editor editorState={editorState} plugins={plugins} onChange={onChange} />
     </Wrapper>
   );
 }

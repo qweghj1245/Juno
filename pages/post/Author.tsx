@@ -1,5 +1,6 @@
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
+import sizeStyle from "@styles/sizeStyle";
 import moment from "moment";
 import React from "react";
 import styled from "styled-components";
@@ -10,9 +11,10 @@ const Wrapper = styled(Row)`
 `;
 
 const AuthorPhoto = styled.img`
-  width: 48px;
+  ${sizeStyle("48px", "48px")};
   border-radius: 50%;
   margin-right: 8px;
+  object-fit: cover;
 `;
 
 const AuthorName = styled.h3`

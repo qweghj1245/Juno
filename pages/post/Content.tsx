@@ -31,6 +31,10 @@ const Paragraph = styled.div`
   & > p {
     height: 22px;
   }
+
+  & > img {
+    width: 100%;
+  }
 `;
 
 const CategoryDot = styled.div`
@@ -52,10 +56,12 @@ export default function Content(props: Props) {
 
   const contentParser = useCallback(async () => {
     const matchRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi;
-    const parseLink = content.match(matchRegex);
+    const matchImage = /jpg|png|gif|jpeg/g;
+    const parseLink = content.match(matchRegex) || [];
+    const filterLink = parseLink.filter((link) => !matchImage.test(link));
 
-    if (parseLink) {
-      const shareHtml = await shareLinkHtml({ url: parseLink[0] });
+    if (filterLink.length > 0) {
+      const shareHtml = await shareLinkHtml({ url: filterLink[0] || "" });
       setContentHtml(content.replace(matchRegex, shareHtml));
     } else {
       setContentHtml(content);
@@ -65,8 +71,6 @@ export default function Content(props: Props) {
   useEffect(() => {
     contentParser();
   }, [contentParser]);
-
-  console.log(contentHtml);
 
   return (
     <Wrapper>
