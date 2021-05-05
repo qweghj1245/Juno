@@ -4,26 +4,15 @@ import { tagState } from "@redux/tagSlice";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
-import axios from "axios";
-import {
-  AtomicBlockUtils,
-  ContentState,
-  convertFromRaw,
-  convertToRaw,
-  EditorState,
-} from "draft-js";
+import { convertFromRaw, EditorState } from "draft-js";
 import createImagePlugin from "draft-js-image-plugin";
 import "draft-js/dist/Draft.css";
-import draftToHtml from "draftjs-to-html";
-import htmlToDraft from "html-to-draftjs";
-import getConfig from "next/config";
 import { useRouter } from "next/router";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
+import draft from "utils/draft";
 import TagSelect from "./TagSelect";
-
-const { publicRuntimeConfig } = getConfig();
 
 const Wrapper = styled.div`
   height: 100vh;
@@ -132,77 +121,13 @@ export default function PostEditor() {
     EditorState.createWithContent(emptyContentState)
   );
 
-  const onChange = (edt: EditorState) => {
-    // {"blocks":[{"key":"2nr1i","text":"wwweeer","type":"sunstyled","depth":0,"inlineStyleRanges":[],"entityRanges":[],"data":{}}],"entityMap":{}}
-    // const json = convertToRaw(edt.getCurrentContent());
-    // console.log("1111", edt.getCurrentContent());
-    // console.log("1", JSON.stringify(json)); // 字串化丟入 db
-    // console.log("2", EditorState.createWithContent(convertFromRaw(json))); // convertFromRaw 轉成的格式是 ContentState, 但編輯器要的格式是 EditorState
-    // console.log("3", edt); // EditorState
-    setEditorState(edt);
-  };
-
-  const draftjsToHTML = useMemo(() => {
-    const json = convertToRaw(editorState.getCurrentContent());
-    return draftToHtml(json, {}, false, ({ type, data }) => {
-      if (type === "IMAGE") {
-        return `<img src="${data.src}" alt="" />`;
-      }
-    });
-  }, [editorState]);
-
-  const htmlToDraftjs = (html: any) => {
-    const blocksFromHtml = htmlToDraft(html);
-    const { contentBlocks, entityMap } = blocksFromHtml;
-    const contentState = ContentState.createFromBlockArray(
-      contentBlocks,
-      entityMap
-    );
-    const editorState = EditorState.createWithContent(contentState);
-    return editorState;
-  };
-
-  const fetchImgurUrl = async (file: any) => {
-    if (file) {
-      try {
-        const formData = new FormData();
-        formData.append("image", file);
-        formData.append("album", publicRuntimeConfig.NEXT_IMGUR_ALBUM_ID);
-        const response = await axios.post(
-          "https://api.imgur.com/3/image/",
-          formData,
-          {
-            headers: {
-              "Content-type": "application/x-www-form-urlencoded",
-              Authorization: `Bearer ${publicRuntimeConfig.NEXT_IMGUR_ACCESS_TOKEN}`,
-            },
-          }
-        );
-        return response.data.data.link;
-      } catch (error) {
-        return "";
-      }
-    }
-    return "";
-  };
-
-  const insertImage = (editorState: EditorState, base64: string) => {
-    const contentState = editorState.getCurrentContent();
-    const contentStateWithEntity = contentState.createEntity(
-      "IMAGE",
-      "IMMUTABLE",
-      { src: base64 }
-    );
-    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
-    const newEditorState = EditorState.set(editorState, {
-      currentContent: contentStateWithEntity,
-    });
-    return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, " ");
-  };
+  const draftjsToHTML = useMemo(() => draft.draftjsToHTML(editorState), [
+    editorState,
+  ]);
 
   const handleClick = async (file: any) => {
-    const imgurUrl = await fetchImgurUrl(file);
-    const newEditorState = insertImage(editorState, imgurUrl);
+    const imgurUrl = await draft.fetchImgurUrl(file);
+    const newEditorState = draft.insertImage(editorState, imgurUrl);
     setEditorState(newEditorState);
   };
 
@@ -245,7 +170,11 @@ export default function PostEditor() {
         placeholder="標題"
         onChange={(e) => setTitle(e.target.value)}
       />
-      <Editor editorState={editorState} plugins={plugins} onChange={onChange} />
+      <Editor
+        editorState={editorState}
+        plugins={plugins}
+        onChange={(edt) => setEditorState(edt)}
+      />
       <CustomLabel htmlFor="image">
         <CustomInputFile
           type="file"

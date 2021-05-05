@@ -2,28 +2,12 @@ import Editor from "@draft-js-plugins/editor";
 import { fetchPatchMember, memberState } from "@redux/memberSlice";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
-import axios from "axios";
-import {
-  ContentState,
-  convertFromRaw,
-  convertToRaw,
-  EditorState,
-} from "draft-js";
-import draftToHtml from "draftjs-to-html";
-import htmlToDraft from "html-to-draftjs";
-import getConfig from "next/config";
+import { convertFromRaw, EditorState } from "draft-js";
 import { useRouter } from "next/router";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-
-const { publicRuntimeConfig } = getConfig();
+import draft from "utils/draft";
 
 const Wrapper = styled.div`
   position: relative;
@@ -118,21 +102,9 @@ export default function MemberEditor() {
 
   const fileInput = useRef<HTMLInputElement>(null);
 
-  const draftjsToHTML = useMemo(() => {
-    const json = convertToRaw(editorState.getCurrentContent());
-    return draftToHtml(json);
-  }, [editorState]);
-
-  const htmlToDraftjs = useCallback((html: any) => {
-    const blocksFromHtml = htmlToDraft(html);
-    const { contentBlocks, entityMap } = blocksFromHtml;
-    const contentState = ContentState.createFromBlockArray(
-      contentBlocks,
-      entityMap
-    );
-    const editorState = EditorState.createWithContent(contentState);
-    return editorState;
-  }, []);
+  const draftjsToHTML = useMemo(() => draft.draftjsToHTML(editorState), [
+    editorState,
+  ]);
 
   const getAvatorBase64 = (file: any) => {
     if (file) {
@@ -156,24 +128,8 @@ export default function MemberEditor() {
     };
 
     if (fileInput.current?.files) {
-      try {
-        const formData = new FormData();
-        formData.append("image", fileInput.current?.files[0]);
-        formData.append("album", publicRuntimeConfig.NEXT_IMGUR_ALBUM_ID);
-        const response = await axios.post(
-          "https://api.imgur.com/3/image/",
-          formData,
-          {
-            headers: {
-              "Content-type": "application/x-www-form-urlencoded",
-              Authorization: `Bearer ${publicRuntimeConfig.NEXT_IMGUR_ACCESS_TOKEN}`,
-            },
-          }
-        );
-        payload.avator = response.data.data.link;
-      } catch (error) {
-        // file upload error
-      }
+      const avatorLink = await draft.fetchImgurUrl(fileInput.current?.files[0]);
+      payload.avator = avatorLink;
     }
 
     dispatch(fetchPatchMember(payload));
@@ -186,7 +142,7 @@ export default function MemberEditor() {
   }, [isPatchDone]);
 
   useEffect(() => {
-    setEditorState(htmlToDraftjs(memberProile!.description));
+    setEditorState(draft.htmlToDraftjs(memberProile!.description));
   }, [memberProile]);
 
   return (
