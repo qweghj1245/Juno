@@ -4,8 +4,12 @@ import React, { useState } from "react";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 52px;
-  position: relative;
+  background: ${({ theme: { color } }) => color.white};
   border-bottom: solid 2px ${({ theme: { color } }) => color.grey500};
 `;
 

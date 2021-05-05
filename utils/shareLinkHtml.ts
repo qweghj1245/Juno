@@ -36,6 +36,7 @@ const cssStyle = {
     width: 78px;
     height: 78px;
     border-radius: 0 20px 20px 0;
+    object-fit: cover;
   `,
 };
 

@@ -33,6 +33,7 @@ interface IState {
   isStatusDone: boolean;
   isCountDone: boolean;
   currentCategory: number | null;
+  isInfiniteOver: boolean;
 }
 
 const initialState: IState = {
@@ -60,10 +61,21 @@ const initialState: IState = {
   isStatusDone: false,
   isCountDone: false,
   currentCategory: null,
+  isInfiniteOver: false,
 };
 
 export const fetchPosts = createAsyncThunk(
   "post/fetchPosts",
+  async (payload?: FetchPostsQuery, thunkApi) => {
+    const response = await PostApi.fetchPosts(payload);
+    const postIds = response.posts.map((item) => item.id);
+    await thunkApi.dispatch(fetchPostTags(postIds));
+    return response;
+  }
+);
+
+export const fetchInfinitePosts = createAsyncThunk(
+  "post/fetchInfinitePosts",
   async (payload?: FetchPostsQuery, thunkApi) => {
     const response = await PostApi.fetchPosts(payload);
     const postIds = response.posts.map((item) => item.id);
@@ -234,6 +246,9 @@ const postSlice = createSlice({
     setCurrentCategory: (state, action) => {
       state.currentCategory = action.payload;
     },
+    setIsNotInfiniteOver: (state) => {
+      state.isInfiniteOver = false;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(hydrate, (state, action) => {
@@ -244,6 +259,15 @@ const postSlice = createSlice({
     });
     builder.addCase(fetchPosts.fulfilled, (state, action) => {
       state.postsResult = action.payload;
+    });
+    builder.addCase(fetchInfinitePosts.fulfilled, (state, action) => {
+      if (action.payload.posts.length === 0) {
+        state.isInfiniteOver = true;
+      }
+      state.postsResult = {
+        ...state.postsResult,
+        posts: state.postsResult.posts.concat(action.payload.posts),
+      };
     });
     builder.addCase(fetchCategoryPosts.fulfilled, (state, action) => {
       state.categoryPostMap = action.payload;
@@ -277,5 +301,9 @@ const postSlice = createSlice({
 });
 
 export const postState = (state: RootState) => state.post;
-export const { setIsNotCreate, setCurrentCategory } = postSlice.actions;
+export const {
+  setIsNotCreate,
+  setCurrentCategory,
+  setIsNotInfiniteOver,
+} = postSlice.actions;
 export default postSlice.reducer;

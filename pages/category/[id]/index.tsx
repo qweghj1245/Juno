@@ -14,6 +14,7 @@ import styled from "styled-components";
 
 const Wrapper = styled.main`
   padding: 0 16px 52px 16px;
+  margin-top: 52px;
 `;
 
 type Props = {

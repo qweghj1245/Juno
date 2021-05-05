@@ -1,3 +1,4 @@
+import { memberState } from "@redux/memberSlice";
 import { postState } from "@redux/postSlice";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
@@ -94,6 +95,7 @@ export default function SectionContent(props: Props) {
   const { sectionType, relationPosts, postTags } = props;
 
   const { commentsResult } = useSelector(postState);
+  const { memberProile } = useSelector(memberState);
 
   const [moreComments, setMoreComments] = useState<boolean>(false);
   const [writeComments, setWriteComments] = useState<boolean>(false);
@@ -104,7 +106,7 @@ export default function SectionContent(props: Props) {
         justifyContent="center"
         onClick={() => setWriteComments(true)}
       >
-        <MemberImage src="" alt="" />
+        <MemberImage src={memberProile?.avator || ""} alt={memberProile?.name || ""} />
         <LinearGradient>
           <AskingText>對這篇文章有想法嗎？</AskingText>
           <ResponseText>留下回應</ResponseText>
