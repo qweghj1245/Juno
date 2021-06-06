@@ -7,6 +7,7 @@ import {
   fetchInfiniteCategoryPosts,
   postState,
   setCurrentCategory,
+  setIsNotInfiniteOver,
 } from "@redux/postSlice";
 import { wrapper } from "@redux/store";
 import { QueryStatus } from "api/PostApi";
@@ -43,6 +44,7 @@ const CategoryPosts: FC<Props> = (props) => {
 
     setPage(1);
     setTab(QueryStatus.HOT);
+    dispatch(setIsNotInfiniteOver());
     dispatch(
       fetchCategoryPosts({
         query: QueryStatus.HOT,
@@ -57,6 +59,7 @@ const CategoryPosts: FC<Props> = (props) => {
 
     setPage(1);
     setTab(QueryStatus.NEW);
+    dispatch(setIsNotInfiniteOver());
     dispatch(
       fetchCategoryPosts({
         query: QueryStatus.NEW,
@@ -119,6 +122,8 @@ export const getServerSideProps = wrapper.getServerSideProps(async (ctx) => {
       );
     }
   } catch (error) {}
+
+  ctx.store.dispatch(setIsNotInfiniteOver());
 
   return { props: { categoryId } };
 });

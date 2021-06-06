@@ -74,6 +74,8 @@ export const getServerSideProps = wrapper.getServerSideProps(async (ctx) => {
     await ctx.store.dispatch(fetchPosts({ query: QueryStatus.HOT }));
   } catch (error) {}
 
+  ctx.store.dispatch(setIsNotInfiniteOver());
+
   return { props: {} };
 });
 

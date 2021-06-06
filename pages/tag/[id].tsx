@@ -1,7 +1,12 @@
 import InfiniteScrollObserver from "@components/InfiniteScrollObserver";
 import PostCard from "@components/PostCard";
 import useDebounce from "@hooks/useDebounce";
-import { fetchInfinitePosts, fetchPosts, postState } from "@redux/postSlice";
+import {
+  fetchInfinitePosts,
+  fetchPosts,
+  postState,
+  setIsNotInfiniteOver,
+} from "@redux/postSlice";
 import { wrapper } from "@redux/store";
 import { fetchTag, tagState } from "@redux/tagSlice";
 import { Row } from "@styles/flexStyle";
@@ -47,13 +52,15 @@ const CardWrapper = styled.div`
 
 type Props = {
   tagId: number;
-}
+};
 
-const Tag:FC<Props> = (props) => {
+const Tag: FC<Props> = (props) => {
   const { tagId } = props;
 
   const dispatch = useDispatch();
-  const { postsResult, postTags, isInfiniteOver, isFetching } = useSelector(postState);
+  const { postsResult, postTags, isInfiniteOver, isFetching } = useSelector(
+    postState
+  );
   const { tagInfo } = useSelector(tagState);
 
   const [page, setPage] = useState<number>(1);
@@ -62,7 +69,9 @@ const Tag:FC<Props> = (props) => {
     useDebounce(() => {
       if (isInfiniteOver || isFetching) return;
 
-      dispatch(fetchInfinitePosts({ tagId, query: QueryStatus.NEW, page:  page + 1 }));
+      dispatch(
+        fetchInfinitePosts({ tagId, query: QueryStatus.NEW, page: page + 1 })
+      );
       setPage((prev) => prev + 1);
     }, 500),
     [dispatch, isInfiniteOver, page]
@@ -96,6 +105,8 @@ export const getServerSideProps = wrapper.getServerSideProps(async (ctx) => {
   try {
     await ctx.store.dispatch(fetchTag(ctx.query.id));
   } catch (error) {}
+
+  ctx.store.dispatch(setIsNotInfiniteOver());
 
   return { props: { tagId: ctx.query.id } };
 });

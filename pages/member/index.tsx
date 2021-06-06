@@ -168,6 +168,7 @@ export default function Member() {
 
   useEffect(() => {
     if (memberProile) {
+      dispatch(setIsNotInfiniteOver());
       dispatch(fetchMemberAggregate());
     } else {
       router.push("/login");
