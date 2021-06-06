@@ -1,16 +1,21 @@
+import InfiniteScrollObserver from "@components/InfiniteScrollObserver";
 import PostCard from "@components/PostCard";
+import useDebounce from "@hooks/useDebounce";
 import {
+  fetchInfiniteMemberCollects,
+  fetchInfiniteMemberPost,
   fetchMemberAggregate,
   fetchMemberCollects,
   fetchMemberPost,
   memberState,
+  setIsNotInfiniteOver,
 } from "@redux/memberSlice";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import sizeStyle from "@styles/sizeStyle";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Select from "react-select";
 import styled from "styled-components";
@@ -116,9 +121,27 @@ export default function Member() {
     memberPost,
     postTags,
     memberCollects,
+    isInfiniteOver,
+    isFetching,
   } = useSelector(memberState);
 
+  const [page, setPage] = useState<number>(1);
   const [tab, setTab] = useState<Tab>("owner");
+
+  const onInfiniteScroll = useCallback(
+    useDebounce(() => {
+      if (isInfiniteOver || isFetching) return;
+
+      if (tab === "owner") {
+        dispatch(fetchInfiniteMemberPost({ page: page + 1 }));
+        setPage((prev) => prev + 1);
+      } else if (tab === "collect") {
+        dispatch(fetchInfiniteMemberCollects({ page: page + 1 }));
+        setPage((prev) => prev + 1);
+      }
+    }, 500),
+    [dispatch, isInfiniteOver, page]
+  );
 
   const postList = useMemo(() => {
     switch (tab) {
@@ -146,12 +169,22 @@ export default function Member() {
   useEffect(() => {
     if (memberProile) {
       dispatch(fetchMemberAggregate());
-      dispatch(fetchMemberPost({}));
-      dispatch(fetchMemberCollects({}));
     } else {
       router.push("/login");
     }
-  }, [memberProile]);
+  }, [dispatch, router, memberProile]);
+
+  useEffect(() => {
+    if (tab === "owner") {
+      dispatch(setIsNotInfiniteOver());
+      dispatch(fetchMemberPost({ page: 1 }));
+      setPage(1);
+    } else if (tab === "collect") {
+      dispatch(setIsNotInfiniteOver());
+      dispatch(fetchMemberCollects({ page: 1 }));
+      setPage(1);
+    }
+  }, [dispatch, tab]);
 
   return (
     <>
@@ -194,6 +227,7 @@ export default function Member() {
         />
       </Selector>
       <CardWrapper>{postList}</CardWrapper>
+      <InfiniteScrollObserver callback={onInfiniteScroll} />
     </>
   );
 }

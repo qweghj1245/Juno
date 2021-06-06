@@ -2,6 +2,7 @@ import PostApi, { GroupPost, PostTagsMap } from "@api/PostApi";
 import { createAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import AuthApi from "api/AuthApi";
 import MemberApi, {
+  FetchPostParams,
   MemberAggregate,
   MemberProfile,
   PatchMemberPayload,
@@ -16,6 +17,8 @@ interface IState {
   memberCollects: GroupPost[];
   postTags: PostTagsMap;
   isPatchDone: boolean;
+  isInfiniteOver: boolean;
+  isFetching: boolean;
 }
 
 const initialState: IState = {
@@ -25,6 +28,8 @@ const initialState: IState = {
   memberCollects: [],
   postTags: {},
   isPatchDone: false,
+  isInfiniteOver: false,
+  isFetching: false,
 };
 
 export const fetchGoogleSignIn = createAsyncThunk(
@@ -59,8 +64,18 @@ export const fetchMemberAggregate = createAsyncThunk(
 
 export const fetchMemberPost = createAsyncThunk(
   "member/fetchMemberPost",
-  async (_: any, thunkApi) => {
-    const response = await MemberApi.fetchMemberPost();
+  async (config: FetchPostParams, thunkApi) => {
+    const response = await MemberApi.fetchMemberPost(config);
+    const postIds = response.map((item) => item.id);
+    await thunkApi.dispatch(fetchPostTags(postIds));
+    return response;
+  }
+);
+
+export const fetchInfiniteMemberPost = createAsyncThunk(
+  "member/fetchInfiniteMemberPost",
+  async (config: FetchPostParams, thunkApi) => {
+    const response = await MemberApi.fetchMemberPost(config);
     const postIds = response.map((item) => item.id);
     await thunkApi.dispatch(fetchPostTags(postIds));
     return response;
@@ -69,8 +84,18 @@ export const fetchMemberPost = createAsyncThunk(
 
 export const fetchMemberCollects = createAsyncThunk(
   "member/fetchMemberCollects",
-  async (_: any, thunkApi) => {
-    const response = await MemberApi.fetchMemberCollects();
+  async (config: FetchPostParams, thunkApi) => {
+    const response = await MemberApi.fetchMemberCollects(config);
+    const postIds = response.map((item) => item.id);
+    await thunkApi.dispatch(fetchPostTags(postIds));
+    return response;
+  }
+);
+
+export const fetchInfiniteMemberCollects = createAsyncThunk(
+  "member/fetchInfiniteMemberCollects",
+  async (config: FetchPostParams, thunkApi) => {
+    const response = await MemberApi.fetchMemberCollects(config);
     const postIds = response.map((item) => item.id);
     await thunkApi.dispatch(fetchPostTags(postIds));
     return response;
@@ -100,7 +125,11 @@ const hydrate = createAction<RootState>(HYDRATE);
 const memberSlice = createSlice({
   name: "member",
   initialState,
-  reducers: {},
+  reducers: {
+    setIsNotInfiniteOver: (state) => {
+      state.isInfiniteOver = false;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(hydrate, (state, action) => {
       return {
@@ -121,8 +150,34 @@ const memberSlice = createSlice({
     builder.addCase(fetchMemberPost.fulfilled, (state, action) => {
       state.memberPost = action.payload;
     });
+    builder.addCase(fetchInfiniteMemberPost.pending, (state) => {
+      state.isFetching = true;
+    });
+    builder.addCase(fetchInfiniteMemberPost.fulfilled, (state, action) => {
+      state.isFetching = false;
+      state.memberPost = [...state.memberPost, ...action.payload];
+      if (action.payload.length < 10) {
+        state.isInfiniteOver = true;
+      }
+    });
+    builder.addCase(fetchInfiniteMemberPost.rejected, (state) => {
+      state.isFetching = false;
+    });
     builder.addCase(fetchMemberCollects.fulfilled, (state, action) => {
       state.memberCollects = action.payload;
+    });
+    builder.addCase(fetchInfiniteMemberCollects.pending, (state) => {
+      state.isFetching = true;
+    });
+    builder.addCase(fetchInfiniteMemberCollects.fulfilled, (state, action) => {
+      state.isFetching = false;
+      state.memberCollects = [...state.memberCollects, ...action.payload];
+      if (action.payload.length < 10) {
+        state.isInfiniteOver = true;
+      }
+    });
+    builder.addCase(fetchInfiniteMemberCollects.rejected, (state) => {
+      state.isFetching = false;
     });
     builder.addCase(fetchPostTags.fulfilled, (state, action) => {
       state.postTags = { ...state.postTags, ...action.payload };
@@ -134,4 +189,5 @@ const memberSlice = createSlice({
 });
 
 export const memberState = (state: RootState) => state.member;
+export const { setIsNotInfiniteOver } = memberSlice.actions;
 export default memberSlice.reducer;

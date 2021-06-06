@@ -40,11 +40,15 @@ export interface PatchMemberPayload {
   avator: string;
 }
 
+export interface FetchPostParams {
+  page: number;
+}
+
 export interface MemberAPI {
   fetchMemberInfo: (requestHeader?: any) => Promise<MemberProfile>;
   fetchMemberAggregate: () => Promise<MemberAggregate>;
-  fetchMemberPost: () => Promise<GroupPost[]>;
-  fetchMemberCollects: () => Promise<GroupPost[]>;
+  fetchMemberPost: (config: FetchPostParams) => Promise<GroupPost[]>;
+  fetchMemberCollects: (config: FetchPostParams) => Promise<GroupPost[]>;
   fetchPatchMember: (payload: PatchMemberPayload) => Promise<void>;
 }
 
@@ -59,12 +63,16 @@ const MemberApi: MemberAPI = {
     const response = await apiClient.get("/member/aggregate/");
     return convertToCamelCase(response.data.result);
   },
-  fetchMemberPost: async () => {
-    const response = await apiClient.get("/member/post/");
+  fetchMemberPost: async (config) => {
+    const response = await apiClient.get("/member/post/", {
+      page: config.page,
+    });
     return convertToCamelCase(response.data.result);
   },
-  fetchMemberCollects: async () => {
-    const response = await apiClient.get("/member/collects/");
+  fetchMemberCollects: async (config) => {
+    const response = await apiClient.get("/member/collects/", {
+      page: config.page,
+    });
     return convertToCamelCase(response.data.result);
   },
   fetchPatchMember: async (payload) => {
