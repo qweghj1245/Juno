@@ -1,14 +1,17 @@
+import InfiniteScrollObserver from "@components/InfiniteScrollObserver";
 import PostCard from "@components/PostCard";
+import useDebounce from "@hooks/useDebounce";
 import Tabs from "@pages/home/Tabs";
 import {
   fetchCategoryPosts,
+  fetchInfiniteCategoryPosts,
   postState,
   setCurrentCategory,
 } from "@redux/postSlice";
 import { wrapper } from "@redux/store";
 import { QueryStatus } from "api/PostApi";
 import { useRouter } from "next/router";
-import React, { FC } from "react";
+import React, { FC, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
@@ -26,24 +29,39 @@ const CategoryPosts: FC<Props> = (props) => {
   const parseCategoryId = parseInt(categoryId, 10);
 
   const dispatch = useDispatch();
-  const { categoryPostMap, postTags } = useSelector(postState);
+  const { categoryPostMap, postTags, isInfiniteOver, isFetching } = useSelector(
+    postState
+  );
 
   const router = useRouter();
 
+  const [page, setPage] = useState<number>(1);
+  const [tab, setTab] = useState<QueryStatus>(QueryStatus.HOT);
+
   const onHotClick = () => {
+    if (tab === QueryStatus.HOT) return;
+
+    setPage(1);
+    setTab(QueryStatus.HOT);
     dispatch(
       fetchCategoryPosts({
         query: QueryStatus.HOT,
         categoryId: parseCategoryId,
+        page: 1,
       })
     );
   };
 
   const onNewClick = () => {
+    if (tab === QueryStatus.NEW) return;
+
+    setPage(1);
+    setTab(QueryStatus.NEW);
     dispatch(
       fetchCategoryPosts({
         query: QueryStatus.NEW,
         categoryId: parseCategoryId,
+        page: 1,
       })
     );
   };
@@ -55,8 +73,24 @@ const CategoryPosts: FC<Props> = (props) => {
     });
   };
 
+  const onInfiniteScroll = useCallback(
+    useDebounce(() => {
+      if (isInfiniteOver || isFetching) return;
+
+      dispatch(
+        fetchInfiniteCategoryPosts({
+          query: tab,
+          page: page + 1,
+          categoryId: parseCategoryId,
+        })
+      );
+      setPage((prev) => prev + 1);
+    }, 500),
+    [dispatch, isInfiniteOver, page]
+  );
+
   return (
-    <>
+    <div>
       <Tabs
         postIcon
         direction="left"
@@ -69,7 +103,8 @@ const CategoryPosts: FC<Props> = (props) => {
           <PostCard key={post.id} post={post} postTags={postTags} />
         ))}
       </Wrapper>
-    </>
+      <InfiniteScrollObserver callback={onInfiniteScroll} />
+    </div>
   );
 };
 
@@ -80,7 +115,7 @@ export const getServerSideProps = wrapper.getServerSideProps(async (ctx) => {
     const { categoryPostMap } = ctx.store.getState().post;
     if (!categoryPostMap[categoryId]) {
       await ctx.store.dispatch(
-        fetchCategoryPosts({ query: QueryStatus.HOT, categoryId })
+        fetchCategoryPosts({ query: QueryStatus.HOT, categoryId, page: 1 })
       );
     }
   } catch (error) {}

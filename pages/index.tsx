@@ -53,7 +53,7 @@ const Home = () => {
       dispatch(fetchInfinitePosts({ query: tab, page: page + 1 }));
       setPage((prev) => prev + 1);
     }, 500),
-    [dispatch, isInfiniteOver, page, postsResult]
+    [dispatch, isInfiniteOver, page]
   );
 
   return (

@@ -101,6 +101,20 @@ export const fetchCategoryPosts = createAsyncThunk(
   }
 );
 
+export const fetchInfiniteCategoryPosts = createAsyncThunk(
+  "post/fetchInfiniteCategoryPosts",
+  async (payload?: FetchPostsQuery, thunkApi) => {
+    const response = await PostApi.fetchPosts(payload);
+    const postIds = response.posts.map((item) => item.id);
+    await thunkApi.dispatch(fetchPostTags(postIds));
+
+    return {
+      response,
+      categoryId: payload?.categoryId as number,
+    };
+  }
+);
+
 export const fetchPostTags = createAsyncThunk(
   "post/fetchPostTags",
   async (postIds: number[]) => {
@@ -281,8 +295,32 @@ const postSlice = createSlice({
     builder.addCase(fetchCategoryPosts.fulfilled, (state, action) => {
       state.categoryPostMap = action.payload;
     });
+    builder.addCase(fetchInfiniteCategoryPosts.pending, (state) => {
+      state.isFetching = true;
+    });
+    builder.addCase(fetchInfiniteCategoryPosts.fulfilled, (state, action) => {
+      const { response, categoryId } = action.payload;
+      const posts = state.categoryPostMap[categoryId].posts.concat(
+        response.posts
+      );
+
+      if (response.posts.length < 10) {
+        state.isInfiniteOver = true;
+      }
+      state.isFetching = false;
+      state.categoryPostMap = {
+        ...state.categoryPostMap,
+        [categoryId]: {
+          ...response,
+          posts,
+        },
+      };
+    });
+    builder.addCase(fetchInfiniteCategoryPosts.rejected, (state) => {
+      state.isFetching = false;
+    });
     builder.addCase(fetchPostTags.fulfilled, (state, action) => {
-      state.postTags = action.payload;
+      state.postTags = { ...state.postTags, ...action.payload };
     });
     builder.addCase(fetchPost.fulfilled, (state, action) => {
       state.post = action.payload;
