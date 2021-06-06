@@ -21,7 +21,9 @@ const Wrapper = styled.main`
 
 const Home = () => {
   const dispatch = useDispatch();
-  const { postsResult, postTags, isInfiniteOver } = useSelector(postState);
+  const { postsResult, postTags, isInfiniteOver, isFetching } = useSelector(
+    postState
+  );
 
   const [page, setPage] = useState<number>(1);
   const [tab, setTab] = useState<QueryStatus>(QueryStatus.HOT);
@@ -46,7 +48,7 @@ const Home = () => {
 
   const onInfiniteScroll = useCallback(
     useDebounce(() => {
-      if (isInfiniteOver || postsResult.count - page * 10 < 0) return;
+      if (isInfiniteOver || isFetching) return;
 
       dispatch(fetchInfinitePosts({ query: tab, page: page + 1 }));
       setPage((prev) => prev + 1);

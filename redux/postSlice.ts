@@ -34,6 +34,7 @@ interface IState {
   isCountDone: boolean;
   currentCategory: number | null;
   isInfiniteOver: boolean;
+  isFetching: boolean;
 }
 
 const initialState: IState = {
@@ -62,6 +63,7 @@ const initialState: IState = {
   isCountDone: false,
   currentCategory: null,
   isInfiniteOver: false,
+  isFetching: false,
 };
 
 export const fetchPosts = createAsyncThunk(
@@ -260,14 +262,21 @@ const postSlice = createSlice({
     builder.addCase(fetchPosts.fulfilled, (state, action) => {
       state.postsResult = action.payload;
     });
+    builder.addCase(fetchInfinitePosts.pending, (state) => {
+      state.isFetching = true;
+    });
     builder.addCase(fetchInfinitePosts.fulfilled, (state, action) => {
-      if (action.payload.posts.length === 0) {
+      if (action.payload.posts.length < 10) {
         state.isInfiniteOver = true;
       }
+      state.isFetching = false;
       state.postsResult = {
         ...state.postsResult,
         posts: state.postsResult.posts.concat(action.payload.posts),
       };
+    });
+    builder.addCase(fetchInfinitePosts.rejected, (state) => {
+      state.isFetching = false;
     });
     builder.addCase(fetchCategoryPosts.fulfilled, (state, action) => {
       state.categoryPostMap = action.payload;
