@@ -1,12 +1,14 @@
+import InfiniteScrollObserver from "@components/InfiniteScrollObserver";
 import PostCard from "@components/PostCard";
-import { fetchPosts, postState } from "@redux/postSlice";
+import useDebounce from "@hooks/useDebounce";
+import { fetchInfinitePosts, fetchPosts, postState } from "@redux/postSlice";
 import { wrapper } from "@redux/store";
 import { fetchTag, tagState } from "@redux/tagSlice";
 import { Row } from "@styles/flexStyle";
 import fontStyle from "@styles/fontStyle";
 import { QueryStatus } from "api/PostApi";
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { FC, useCallback, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
 const Wrapper = styled(Row)`
@@ -43,12 +45,31 @@ const CardWrapper = styled.div`
   padding: 0 16px 52px 16px;
 `;
 
-const Tag = () => {
-  const { postsResult, postTags } = useSelector(postState);
+type Props = {
+  tagId: number;
+}
+
+const Tag:FC<Props> = (props) => {
+  const { tagId } = props;
+
+  const dispatch = useDispatch();
+  const { postsResult, postTags, isInfiniteOver, isFetching } = useSelector(postState);
   const { tagInfo } = useSelector(tagState);
 
+  const [page, setPage] = useState<number>(1);
+
+  const onInfiniteScroll = useCallback(
+    useDebounce(() => {
+      if (isInfiniteOver || isFetching) return;
+
+      dispatch(fetchInfinitePosts({ tagId, query: QueryStatus.NEW, page:  page + 1 }));
+      setPage((prev) => prev + 1);
+    }, 500),
+    [dispatch, isInfiniteOver, page]
+  );
+
   return (
-    <>
+    <div>
       <Wrapper>
         <TagTitle>{`#${tagInfo?.name}`}</TagTitle>
         <TagPostCount>{`共${tagInfo?.count}篇文章`}</TagPostCount>
@@ -60,14 +81,15 @@ const Tag = () => {
           <PostCard key={post.id} post={post} postTags={postTags} />
         ))}
       </CardWrapper>
-    </>
+      <InfiniteScrollObserver callback={onInfiniteScroll} />
+    </div>
   );
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(async (ctx) => {
   try {
     await ctx.store.dispatch(
-      fetchPosts({ tagId: ctx.query.id, query: QueryStatus.HOT })
+      fetchPosts({ tagId: ctx.query.id, query: QueryStatus.NEW, page: 1 })
     );
   } catch (error) {}
 
@@ -75,7 +97,7 @@ export const getServerSideProps = wrapper.getServerSideProps(async (ctx) => {
     await ctx.store.dispatch(fetchTag(ctx.query.id));
   } catch (error) {}
 
-  return { props: {} };
+  return { props: { tagId: ctx.query.id } };
 });
 
 export default Tag;
