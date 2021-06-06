@@ -127,7 +127,7 @@ export default function MemberEditor() {
       avator: memberProile?.avator || "",
     };
 
-    if (fileInput.current?.files) {
+    if (fileInput.current?.files && fileInput.current.files.length > 0) {
       const avatorLink = await draft.fetchImgurUrl(fileInput.current?.files[0]);
       payload.avator = avatorLink;
     }
